@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AESFileScrambler
 {
-    class Encryption
+    public class Encryption
     {
         public static void AES_Encrypt(string inputFile, string outputFile, byte[] passwordBytes, CipherMode cipherMode)
         {
@@ -36,8 +37,14 @@ namespace AESFileScrambler
             FileStream fsIn = new FileStream(inputFile, FileMode.Open);
 
             int data;
+            //long lenStream = fsIn.Length;
             while ((data = fsIn.ReadByte()) != -1)
                 cs.WriteByte((byte)data);
+
+            //for (long i = 0; (data = fsIn.ReadByte()) != -1; i++)
+            //{
+            //    cs.WriteByte((byte)data);
+            //}
 
 
             fsIn.Close();

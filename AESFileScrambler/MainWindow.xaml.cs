@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Security.Cryptography;
+using Microsoft.Win32;
+using System.ComponentModel;
 
 namespace AESFileScrambler
 {
@@ -27,9 +29,22 @@ namespace AESFileScrambler
         {
             InitializeComponent();
 
+            tbEncInFile.Text = encInFile;
+            tbEncOutFile.Text = encOutFile;
+            tbDecInFile.Text = decInFile;
+            tbDecOutFile.Text = decOutFile;
+
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
         }
+
+        public void UpdateEncProgressBar(object sender, ProgressChangedEventArgs e)
+        {
+            // Upadte the Progress bar
+            pbEnc.Value = e.ProgressPercentage;
+            lbEncProgress.Content = e.ProgressPercentage + "%";
+        }
+
 
         /// <summary>
         /// This method show in table masked password and
@@ -85,13 +100,48 @@ namespace AESFileScrambler
             }
         }
 
+        private CipherMode mapEncModeStringToEnum(string modeName) {
+            CipherMode encMode;
+
+            string encModeString = modeName;
+            switch (encModeString)
+            {
+                case "CBC": encMode = CipherMode.CBC; break;
+                case "CFB": encMode = CipherMode.CFB; break;
+                case "EBC": encMode = CipherMode.ECB; break;
+                case "OFB": encMode = CipherMode.OFB; break;
+                default: encMode = CipherMode.CBC; break;
+            }
+            return encMode;
+        }
+
         private void btnEncryptClik(object sender, RoutedEventArgs e){
             byte[] passwdHash;
 
             if (usersPasswords.TryGetValue("John", out passwdHash)) {
-                Encryption.AES_Encrypt("E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\IMG_20170703_163731.jpg",
-                "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile", mySHA256.ComputeHash(passwdHash),
-                CipherMode.CBC);
+
+                DataForEnc data = new DataForEnc();
+                data.InputFile = encInFile;
+                data.OutputFile = encOutFile;
+                data.PasswordBytes = mySHA256.ComputeHash(passwdHash);
+                data.CipherMode = mapEncModeStringToEnum(cbEncMode.Text);
+
+                AsyncEncryption asyncEnc = new AsyncEncryption();
+                asyncEnc.backgroundWorker.ProgressChanged += UpdateEncProgressBar;
+                asyncEnc.backgroundWorker.RunWorkerAsync(data);
+
+                //Encryption.AES_Encrypt(encInFile, encOutFile, mySHA256.ComputeHash(passwdHash),
+                //mapEncModeStringToEnum(cbEncMode.Text));
+            }
+        }
+
+        public void UpdateEncProgressBar(int value)
+        {
+            if (CheckAccess())
+                pbEnc.Value = value;
+            else
+            {
+                Dispatcher.Invoke(() => { pbEnc.Value = value; });
             }
         }
 
@@ -99,8 +149,7 @@ namespace AESFileScrambler
             byte[] passwdHash;
 
             if (usersPasswords.TryGetValue("John", out passwdHash)){
-                Encryption.AES_Decrypt("E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile",
-                "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\decryptedFile.jpg", mySHA256.ComputeHash(passwdHash),
+                Encryption.AES_Decrypt(decInFile, decOutFile, mySHA256.ComputeHash(passwdHash),
                 CipherMode.CBC);
             }
         }
@@ -109,11 +158,56 @@ namespace AESFileScrambler
 
         }
 
+        private void btnEncInFile_Click(object sender, RoutedEventArgs e){
+
+            bool? temp = file.ShowDialog();
+            if (temp.HasValue ? temp.Value : false){
+                encInFile = file.FileName;
+                tbEncInFile.Text = encInFile;
+            }
+        }
+
+        private void btnEndOutFile_Click(object sender, RoutedEventArgs e){
+
+            bool? temp = file.ShowDialog();
+            if (temp.HasValue ? temp.Value : false)
+            {
+                encOutFile = file.FileName;
+                tbEncOutFile.Text = encOutFile;
+            }
+        }
+
+        private void btnDecInFile_Click(object sender, RoutedEventArgs e){
+
+            bool? temp = file.ShowDialog();
+            if (temp.HasValue ? temp.Value : false)
+            {
+                decInFile = file.FileName;
+                tbDecInFile.Text = decInFile;
+            }
+        }
+
+        private void btnDecOutFile_Click(object sender, RoutedEventArgs e){
+
+            bool? temp = file.ShowDialog();
+            if (temp.HasValue ? temp.Value : false)
+            {
+                decOutFile = file.FileName;
+                tbDecOutFile.Text = decOutFile;
+            }
+        }
+
         private Dictionary<string, byte[]> usersPasswords 
             = new Dictionary<string, byte[]>();
 
         private DataTable tablePreparedUsers = new DataTable();
         private SHA256 mySHA256 = SHA256.Create();
+        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\IMG_20170703_163731.jpg";
+        private string encOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
+        private string decInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
+        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\decryptedFile.jpg";
+
+        private OpenFileDialog file = new OpenFileDialog();
 
     }
 }
