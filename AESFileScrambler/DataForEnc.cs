@@ -7,11 +7,5 @@ using System.Threading.Tasks;
 
 namespace AESFileScrambler
 {
-    class DataForEnc
-    {
-        public string InputFile { get; set; }
-        public string OutputFile { get; set; }
-        public byte[] PasswordBytes { get; set; }
-        public CipherMode CipherMode { get; set; }
-    }
+    class DataForEnc : CommonDataEncDec{ }
 }

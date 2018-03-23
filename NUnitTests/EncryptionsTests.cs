@@ -24,29 +24,29 @@ namespace NUnitTests
             Assert.IsFalse(File.Exists(decryptedFile));
         }
 
-        [Test, Order(2)]
-        public void testEncryptionFile()
-        {
+        //[Test, Order(2)]
+        //public void testEncryptionFile()
+        //{
 
-            AESFileScrambler.Encryption.AES_Encrypt(inputFile,
-                encryptedFile,
-                mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
-                cipherMode);
+        //    AESFileScrambler.Encryption.AES_Encrypt(inputFile,
+        //        encryptedFile,
+        //        mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
+        //        cipherMode);
 
-            Assert.IsTrue(File.Exists(encryptedFile));
-        }
+        //    Assert.IsTrue(File.Exists(encryptedFile));
+        //}
 
-        [Test, Order(3)]
-        public void testDecryptionFile()
-        {
+        //[Test, Order(3)]
+        //public void testDecryptionFile()
+        //{
 
-            AESFileScrambler.Encryption.AES_Decrypt(encryptedFile,
-                decryptedFile,
-                mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
-                cipherMode);
+        //    AESFileScrambler.Encryption.AES_Decrypt(encryptedFile,
+        //        decryptedFile,
+        //        mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
+        //        cipherMode);
 
-            Assert.IsTrue(File.Exists(encryptedFile));
-        }
+        //    Assert.IsTrue(File.Exists(encryptedFile));
+        //}
 
         [Test, Order(4)]
         public void compareInAndOutFiles() {

@@ -29,7 +29,7 @@ namespace AESFileScrambler
             backgroundWorker.RunWorkerCompleted -= EncryptAsyncCompleted;
             backgroundWorker.ProgressChanged -= 
                 (System.Windows.Application.Current.MainWindow as MainWindow)
-                .UpdateEncProgressBar;
+                .updateEncProgressBar;
             MessageBox.Show("Succes!\nFile is encprypted.");
         }
 
@@ -39,13 +39,16 @@ namespace AESFileScrambler
 
             byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
             string cryptFile = data.OutputFile;
-            FileStream fsCrypt = new FileStream(cryptFile, FileMode.Create);
+
+            XmlTextReaderWriter writer = new XmlTextReaderWriter(data);
+            writer.WriteToXml();
+
+            FileStream fsCrypt = new FileStream(cryptFile, FileMode.Append);
 
             RijndaelManaged AES = new RijndaelManaged();
 
             AES.KeySize = keySize;
             AES.BlockSize = blockSize;
-
 
             var key = new Rfc2898DeriveBytes(data.PasswordBytes, saltBytes, 1000);
             AES.Key = key.GetBytes(AES.KeySize / 8);
@@ -62,8 +65,7 @@ namespace AESFileScrambler
 
             int encryptedData;
             long lenStream = fsIn.Length;
-            //while ((encryptedData = fsIn.ReadByte()) != -1)
-            //    cs.WriteByte((byte)encryptedData);
+
             int prevVal = 0;
             for (long i = 0; (encryptedData = fsIn.ReadByte()) != -1; i++)
             {
@@ -80,21 +82,6 @@ namespace AESFileScrambler
             cs.Close();
             fsCrypt.Close();
 
-            //------------------------------------------------------
-
-            //for (int i = 0; i < 100; i++) {
-            //    //Do Something
-            //    Thread.Sleep(20);
-            //    backgroundWorker.ReportProgress(i);
-            //}
-
-            ////Do Something
-            //Thread.Sleep(2000);
-            //backgroundWorker.ReportProgress(70);
-
-            ////Do Something
-            //Thread.Sleep(2000);
-            //backgroundWorker.ReportProgress(100);
         }
 
         private static int keySize = 128;

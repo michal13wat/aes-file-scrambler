@@ -36,13 +36,24 @@ namespace AESFileScrambler
 
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
+
+            data.InputFile = decInFile;
+            XmlTextReaderWriter reader = new XmlTextReaderWriter(data);
+            reader.ReadXml();
         }
 
-        public void UpdateEncProgressBar(object sender, ProgressChangedEventArgs e)
+        public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
         {
             // Upadte the Progress bar
             pbEnc.Value = e.ProgressPercentage;
             lbEncProgress.Content = e.ProgressPercentage + "%";
+        }
+
+        public void updateDecProgressBar(object sender, ProgressChangedEventArgs e)
+        {
+            // Upadte the Progress bar
+            pbDec.Value = e.ProgressPercentage;
+            lbDecProgress.Content = e.ProgressPercentage + "%";
         }
 
 
@@ -127,30 +138,29 @@ namespace AESFileScrambler
                 data.CipherMode = mapEncModeStringToEnum(cbEncMode.Text);
 
                 AsyncEncryption asyncEnc = new AsyncEncryption();
-                asyncEnc.backgroundWorker.ProgressChanged += UpdateEncProgressBar;
+                asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
                 asyncEnc.backgroundWorker.RunWorkerAsync(data);
 
                 //Encryption.AES_Encrypt(encInFile, encOutFile, mySHA256.ComputeHash(passwdHash),
                 //mapEncModeStringToEnum(cbEncMode.Text));
             }
         }
-
-        public void UpdateEncProgressBar(int value)
-        {
-            if (CheckAccess())
-                pbEnc.Value = value;
-            else
-            {
-                Dispatcher.Invoke(() => { pbEnc.Value = value; });
-            }
-        }
-
+        
         private void btnDecryptClick(object sender, RoutedEventArgs e){
             byte[] passwdHash;
 
             if (usersPasswords.TryGetValue("John", out passwdHash)){
-                Encryption.AES_Decrypt(decInFile, decOutFile, mySHA256.ComputeHash(passwdHash),
-                CipherMode.CBC);
+
+                data.InputFile = decInFile;
+                data.OutputFile = decOutFile;
+                data.PasswordBytes = mySHA256.ComputeHash(passwdHash);
+
+                // TODO - CipeherMode musi być odczytywany z pliku!!!
+                data.CipherMode = CipherMode.CBC; //mapEncModeStringToEnum(cbEncMode.Text);
+
+                AsyncDecryption asyncDec = new AsyncDecryption();
+                asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
+                asyncDec.backgroundWorker.RunWorkerAsync(data);
             }
         }
 
@@ -184,6 +194,12 @@ namespace AESFileScrambler
             {
                 decInFile = file.FileName;
                 tbDecInFile.Text = decInFile;
+
+                data.InputFile = decInFile;
+                XmlTextReaderWriter reader = new XmlTextReaderWriter(data);
+                // TODO - zapisać to do DataForDecrypted i użytkowników wrzucić na
+                // tą listę wyboru
+                reader.ReadXml();
             }
         }
 
@@ -209,5 +225,6 @@ namespace AESFileScrambler
 
         private OpenFileDialog file = new OpenFileDialog();
 
+        private CommonDataEncDec data = new DataForDec();
     }
 }

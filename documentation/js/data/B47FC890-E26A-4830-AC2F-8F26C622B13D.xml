@@ -1,0 +1,16 @@
+tocTab[tocTab.length] = new Array("0:1", "", "AESFileScrambler", "EARoot/EA1.htm", "3.png", "4", "0", "", "Logical diagram0","{D8D85DBE-C559-411d-87BB-E8AFFEEDEC1C}");
+tocTab[tocTab.length] = new Array("0:2", "", "App", "EARoot/EA4.htm", "5.png", "E22", "0", "", "Class0","{7B3A14B9-2021-4579-B8CB-914897B183B5}");
+tocTab[tocTab.length] = new Array("0:3", "", "App", "EARoot/EA5.htm", "5.png", "E15", "0", "", "Class0","{61766B35-7BDE-4b2c-A61B-F6A8E426E2E5}");
+tocTab[tocTab.length] = new Array("0:4", "", "App", "EARoot/EA6.htm", "5.png", "E16", "0", "", "Class0","{94F4484C-C995-4cc8-BBF7-E05B3A60FF1B}");
+tocTab[tocTab.length] = new Array("0:5", "", "AsyncDecryption", "EARoot/EA7.htm", "5.png", "E23", "0", "", "Class0","{B1D4E964-9799-4240-B8CB-CC7784F5FA92}");
+tocTab[tocTab.length] = new Array("0:6", "", "AsyncEncryption", "EARoot/EA8.htm", "5.png", "E24", "0", "", "Class0","{145CF189-F3D4-4f9c-9998-D2F51C53F264}");
+tocTab[tocTab.length] = new Array("0:7", "", "CommonDataEncDec", "EARoot/EA9.htm", "5.png", "E25", "0", "", "Class0","{7AB01123-C77E-4339-96FA-99FB7DA52216}");
+tocTab[tocTab.length] = new Array("0:8", "", "DataForDec", "EARoot/EA10.htm", "5.png", "E26", "0", "", "Class0","{5E53B99F-BEEC-4728-85A4-9CB78E28BE90}");
+tocTab[tocTab.length] = new Array("0:9", "", "DataForEnc", "EARoot/EA11.htm", "5.png", "E27", "0", "", "Class0","{0CFA9482-28E9-4c43-840E-9B11721CD097}");
+tocTab[tocTab.length] = new Array("0:10", "", "MainWindow", "EARoot/EA12.htm", "5.png", "E28", "0", "", "Class0","{2CBBB1D9-DEBE-4b23-B5DD-1138CE465197}");
+tocTab[tocTab.length] = new Array("0:11", "", "MainWindow", "EARoot/EA13.htm", "5.png", "E18", "0", "", "Class0","{89B49F81-EE9F-408b-B002-3FD7A4C27E2D}");
+tocTab[tocTab.length] = new Array("0:12", "", "MainWindow", "EARoot/EA14.htm", "5.png", "E17", "0", "", "Class0","{EFE399EC-DB49-47ed-85D0-AB447F01EF36}");
+tocTab[tocTab.length] = new Array("0:13", "", "UserPasswd", "EARoot/EA16.htm", "5.png", "E29", "0", "", "Class0","{E5B47C2F-8C35-4a11-A173-DE0051633F6D}");
+tocTab[tocTab.length] = new Array("0:14", "", "XmlConstants", "EARoot/EA17.htm", "5.png", "E30", "0", "", "Class0","{DE4351CC-4EF4-464c-A8B3-FDADCD875907}");
+tocTab[tocTab.length] = new Array("0:15", "", "XmlTextReaderWriter", "EARoot/EA18.htm", "5.png", "E31", "0", "", "Class0","{D656604D-B151-47f0-A6F4-E226B27B5C53}");
+tocTab[tocTab.length] = new Array("0.1", "1", "Properties", "EARoot/EA1/EA21.htm", "4.png", "", "", "{506BB63E-2153-4c67-A136-86764365083B}", "Package");
