@@ -47,47 +47,64 @@ namespace NUnitTests
 
         //    Assert.IsTrue(File.Exists(encryptedFile));
         //}
+        //byte by byte
+
 
         [Test, Order(4)]
         public void compareInAndOutFiles() {
-            //Assert.IsFalse(File.ReadAllBytes(inputFile).SequenceEqual(File.ReadAllBytes("E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\BSK_projekt_1.pdf")));
-            Assert.IsFalse(ReadBytes(inputFile, encryptedFile));
+            Assert.IsTrue(CompareByBytes(new FileInfo(inputFile), new FileInfo(decryptedFile)));
+            Assert.IsTrue(CompareByHash_MD5( new FileInfo(inputFile), new FileInfo(decryptedFile)));
+            Assert.IsTrue(CompareByHash_SHA256(new FileInfo(inputFile), new FileInfo(decryptedFile)));
         }
 
-        private string GetChecksum(string file)
+        private bool CompareByBytes(FileInfo file1, FileInfo file2)
         {
-            using (FileStream stream = new FileStream(file, FileMode.Open))
-            {
-                //FileStream filestream;
-
-                //filestream = new FileStream(file, FileMode.Open);
-                stream.Position = 0;
-                byte[] hashValue = mySHA256.ComputeHash(stream);
-                string outHash = BitConverter.ToString(hashValue).Replace("-", String.Empty);
-                TestContext.Out.WriteLine("Output Hash = " + outHash);
-                stream.Close();
-                return outHash;
-            }
-        }
-
-        private bool ReadBytes(string file1, string file2)
-        {
-            byte[] bytes1 = File.ReadAllBytes(file1);
-            byte[] bytes2 = File.ReadAllBytes(file2);
-
-            if (bytes1.Length != bytes2.Length)
+            if (file1.Length != file2.Length)
                 return false;
 
-            for(int i = 0; i < bytes1.Length; i++)
+            using (FileStream fs1 = file1.OpenRead())
+            using (FileStream fs2 = file2.OpenRead())
             {
-                if (bytes1[i] != bytes2[i])
+                for (int i = 0; i < file1.Length; i++)
+                {
+                    if (fs1.ReadByte() != fs2.ReadByte())
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        private bool CompareByHash_MD5(FileInfo file1, FileInfo file2)
+        {
+            byte[] file1Hash = MD5.Create().ComputeHash(file1.OpenRead());
+            byte[] file2Hash = MD5.Create().ComputeHash(file2.OpenRead());
+
+            for (int i = 0; i < file1Hash.Length; i++)
+            {
+                if (file1Hash[i] != file2Hash[i])
                     return false;
             }
 
             return true;
         }
 
-        private const string inputFile 
+        private bool CompareByHash_SHA256(FileInfo file1, FileInfo file2)
+        {
+            byte[] file1Hash = SHA256.Create().ComputeHash(file1.OpenRead());
+            byte[] file2Hash = SHA256.Create().ComputeHash(file2.OpenRead());
+
+            for (int i = 0; i < file1Hash.Length; i++)
+            {
+                if (file1Hash[i] != file2Hash[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+
+        private const string inputFile
             = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\AESFileScrambler\\NUnitTests\\bin\\Debug\\in\\myFile.zip";
         private const string encryptedFile
             = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\AESFileScrambler\\NUnitTests\\bin\\Debug\\encryptedFile";
