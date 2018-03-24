@@ -126,10 +126,6 @@ namespace AESFileScrambler
                 reader.MoveToNextAttribute();
                 genre = reader.Value;
 
-
-                //output.AppendLine("The genre value: " + genre);
-                //reader.ReadToFollowing("title");
-                //output.AppendLine("Content of the title element: " + reader.ReadElementContentAsString());
             }
 
             return dataForDec;
