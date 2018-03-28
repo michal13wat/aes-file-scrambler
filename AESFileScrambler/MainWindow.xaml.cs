@@ -37,9 +37,16 @@ namespace AESFileScrambler
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
 
-            data.InputFile = decInFile;
-            XmlTextReaderWriter reader = new XmlTextReaderWriter(data);
-            reader.ReadXml();
+            dataForDec.InputFile = decInFile;
+            XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
+            dataForDec = reader.ReadXml();
+
+            try{
+                cbUsers.ItemsSource = dataForDec.RSA_UsersKeys.Keys;
+            }
+            catch { }
+
+            secretPrimeNumber = PrimeNumberGenerator.genpr2(512);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -129,15 +136,20 @@ namespace AESFileScrambler
         private void btnEncryptClik(object sender, RoutedEventArgs e){
             byte[] passwdHash;
 
-            if (usersPasswords.TryGetValue("John", out passwdHash)) {
+            //usersPasswords.TryGetValue("John", out passwdHash)
+            if (true) {
 
                 DataForEnc data = new DataForEnc();
                 data.InputFile = encInFile;
                 data.OutputFile = encOutFile;
-                data.PasswordBytes = mySHA256.ComputeHash(passwdHash);
+                data.AES_KeyBytes = secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
                 data.CipherMode = mapEncModeStringToEnum(cbEncMode.Text);
+                data.StringCipherMode = cbEncMode.Text;
+                data.KeySize = 128;
+                data.BlockSize = 128;
+                data.RSA_UsersKeys = this.usersPasswords;
 
-                AsyncEncryption asyncEnc = new AsyncEncryption();
+                AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
                 asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
                 asyncEnc.backgroundWorker.RunWorkerAsync(data);
 
@@ -149,18 +161,18 @@ namespace AESFileScrambler
         private void btnDecryptClick(object sender, RoutedEventArgs e){
             byte[] passwdHash;
 
-            if (usersPasswords.TryGetValue("John", out passwdHash)){
+            if (dataForDec.RSA_UsersKeys.TryGetValue(cbUsers.Text.ToString(), out passwdHash)){
 
-                data.InputFile = decInFile;
-                data.OutputFile = decOutFile;
-                data.PasswordBytes = mySHA256.ComputeHash(passwdHash);
+                dataForDec.InputFile = decInFile;
+                dataForDec.OutputFile = decOutFile;
+                dataForDec.AES_KeyBytes = secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
 
                 // TODO - CipeherMode musi być odczytywany z pliku!!!
-                data.CipherMode = CipherMode.CBC; //mapEncModeStringToEnum(cbEncMode.Text);
+                //dataForDec.CipherMode = CipherMode.CBC; //mapEncModeStringToEnum(cbEncMode.Text);
 
-                AsyncDecryption asyncDec = new AsyncDecryption();
+                AES_AsyncDecryptionFile asyncDec = new AES_AsyncDecryptionFile();
                 asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
-                asyncDec.backgroundWorker.RunWorkerAsync(data);
+                asyncDec.backgroundWorker.RunWorkerAsync(dataForDec);
             }
         }
 
@@ -195,11 +207,12 @@ namespace AESFileScrambler
                 decInFile = file.FileName;
                 tbDecInFile.Text = decInFile;
 
-                data.InputFile = decInFile;
-                XmlTextReaderWriter reader = new XmlTextReaderWriter(data);
+                dataForDec.InputFile = decInFile;
+                XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
                 // TODO - zapisać to do DataForDecrypted i użytkowników wrzucić na
                 // tą listę wyboru
-                reader.ReadXml();
+                dataForDec = reader.ReadXml();
+                cbUsers.ItemsSource = dataForDec.RSA_UsersKeys.Keys;
             }
         }
 
@@ -218,13 +231,16 @@ namespace AESFileScrambler
 
         private DataTable tablePreparedUsers = new DataTable();
         private SHA256 mySHA256 = SHA256.Create();
-        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\IMG_20170703_163731.jpg";
+        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\myFile.zip";
         private string encOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
         private string decInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
-        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\decryptedFile.jpg";
+        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\decryptedFile.zip";
 
         private OpenFileDialog file = new OpenFileDialog();
 
-        private CommonDataEncDec data = new DataForDec();
+        private CommonDataEncDec dataForDec = new DataForDec();
+        private Org.BouncyCastle.Math.BigInteger secretPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
+        //private Org.BouncyCastle.Math.BigInteger encryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
+        //private Org.BouncyCastle.Math.BigInteger decryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
     }
 }

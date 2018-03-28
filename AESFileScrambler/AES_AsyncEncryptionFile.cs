@@ -11,10 +11,10 @@ using System.Windows;
 
 namespace AESFileScrambler
 {
-    class AsyncEncryption
+    class AES_AsyncEncryptionFile
     {
         public BackgroundWorker backgroundWorker;
-        public AsyncEncryption()
+        public AES_AsyncEncryptionFile()
         {
             backgroundWorker = new BackgroundWorker();
             backgroundWorker.WorkerReportsProgress = true;
@@ -47,10 +47,10 @@ namespace AESFileScrambler
 
             RijndaelManaged AES = new RijndaelManaged();
 
-            AES.KeySize = keySize;
-            AES.BlockSize = blockSize;
+            AES.KeySize = data.KeySize;
+            AES.BlockSize = data.BlockSize;
 
-            var key = new Rfc2898DeriveBytes(data.PasswordBytes, saltBytes, 1000);
+            var key = new Rfc2898DeriveBytes(data.AES_KeyBytes, saltBytes, 1000);
             AES.Key = key.GetBytes(AES.KeySize / 8);
             AES.IV = key.GetBytes(AES.BlockSize / 8);
             AES.Padding = PaddingMode.Zeros;
@@ -67,7 +67,8 @@ namespace AESFileScrambler
             long lenStream = fsIn.Length;
 
             int prevVal = 0;
-            for (long i = 0; (encryptedData = fsIn.ReadByte()) != -1; i++)
+            long i = 0;
+            for (; (encryptedData = fsIn.ReadByte()) != -1; i++)
             {
                 cs.WriteByte((byte)encryptedData);
                 if (prevVal != unchecked((int)(i * 100 / lenStream) )) {
@@ -81,10 +82,6 @@ namespace AESFileScrambler
             fsIn.Close();
             cs.Close();
             fsCrypt.Close();
-
         }
-
-        private static int keySize = 128;
-        private static int blockSize = 128;
     }
 }

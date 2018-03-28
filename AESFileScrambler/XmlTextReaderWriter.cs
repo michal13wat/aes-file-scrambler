@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Xml;
 
 namespace AESFileScrambler
@@ -26,30 +27,28 @@ namespace AESFileScrambler
             writer.WriteEndElement();
 
             writer.WriteStartElement(XmlConstants.KEY_SIZE);
-            writer.WriteAttributeString("xmlns", "x", null, "1");
+            writer.WriteAttributeString("xmlns", "x", null, data.KeySize.ToString());
             writer.WriteEndElement();
 
             writer.WriteStartElement(XmlConstants.BLOCK_SIZE);
-            writer.WriteAttributeString("xmlns", "x", null, "2");
+            writer.WriteAttributeString("xmlns", "x", null, data.BlockSize.ToString());
             writer.WriteEndElement();
 
             writer.WriteStartElement(XmlConstants.CIPHER_MODE);
-            writer.WriteAttributeString("xmlns", "x", null, "3");
-            writer.WriteEndElement();
-
-            writer.WriteStartElement(XmlConstants.IV);
-            writer.WriteAttributeString("xmlns", "x", null, "4");
+            writer.WriteAttributeString("xmlns", "x", null, data.StringCipherMode);
             writer.WriteEndElement();
 
             writer.WriteStartElement(XmlConstants.APPROVED_USERS);
 
-            writer.WriteStartElement(XmlConstants.USER);
-            writer.WriteAttributeString("xmlns", "x", null, "asdf");
-            writer.WriteEndElement();
+            foreach (KeyValuePair<string, byte[]> up in data.RSA_UsersKeys) {
+                writer.WriteStartElement(XmlConstants.USER);
+                writer.WriteAttributeString("xmlns", "x", null, up.Key);
+                writer.WriteEndElement();
 
-            writer.WriteStartElement(XmlConstants.SESSION_KEY);
-            writer.WriteAttributeString("xmlns", "x", null, "5");
-            writer.WriteEndElement();
+                writer.WriteStartElement(XmlConstants.SESSION_KEY);
+                writer.WriteAttributeString("xmlns", "x", null, Convert.ToBase64String(up.Value));
+                writer.WriteEndElement();
+            }
 
             writer.WriteEndElement();
 
@@ -67,65 +66,66 @@ namespace AESFileScrambler
             DataForDec dataForDec = new DataForDec();
 
             string xmlString = "";
-            using (FileStream fs = new FileStream(data.InputFile, FileMode.Open, FileAccess.Read))
-            using (StreamReader sw = new StreamReader(fs))
-            {
-                string line = "";
-                while (true)
+            try {
+                using (FileStream fs = new FileStream(data.InputFile, FileMode.Open, FileAccess.Read))
+                using (StreamReader sw = new StreamReader(fs))
                 {
-                    line = sw.ReadLine();
+                    string line = "";
+                    while (true)
+                    {
+                        line = sw.ReadLine();
 
-                    if (line.Equals(delimiter)) break;
-
-                    xmlString += line;
+                        if (line.Equals(delimiter)){
+                            break;
+                        }
+                        xmlString += line;
+                    }
                 }
+
+            }
+            catch {
+                MessageBox.Show("Can not open file input file to decrypted!");
+                return null;
             }
 
             using (XmlReader reader
                 = XmlReader.Create(new StringReader(xmlString)))
             {
-                string genre;
-
-                reader.ReadToFollowing("x:root");
-                reader.MoveToFirstAttribute();
-                genre = reader.Value;
-
-                reader.ReadToFollowing(XmlConstants.ALGORITHM);
-                reader.MoveToFirstAttribute();
-                genre = reader.Value;
 
                 reader.ReadToFollowing(XmlConstants.KEY_SIZE);
                 reader.MoveToFirstAttribute();
-                genre = reader.Value;
+                dataForDec.KeySize = int.Parse(reader.Value);
 
                 reader.ReadToFollowing(XmlConstants.BLOCK_SIZE);
                 reader.MoveToFirstAttribute();
-                genre = reader.Value;
+                dataForDec.BlockSize = int.Parse(reader.Value);
 
                 reader.ReadToFollowing(XmlConstants.CIPHER_MODE);
                 reader.MoveToFirstAttribute();
-                genre = reader.Value;
+                dataForDec.StringCipherMode = reader.Value;
 
-                reader.ReadToFollowing(XmlConstants.IV);
-                reader.MoveToFirstAttribute();
-                genre = reader.Value;
+                string user = "...";
+                string passwd = "...";
+                while (true)
+                {
+                    try
+                    {
+                        reader.ReadToFollowing(XmlConstants.USER);
+                        reader.MoveToFirstAttribute();
+                        user = reader.Value;
 
-                reader.ReadToFollowing(XmlConstants.USER);
-                reader.MoveToFirstAttribute();
-                genre = reader.Value;
+                        reader.ReadToFollowing(XmlConstants.SESSION_KEY);
+                        reader.MoveToFirstAttribute();
+                        passwd = reader.Value;
 
-                reader.ReadToFollowing(XmlConstants.USER);
-                reader.MoveToNextAttribute();
-                genre = reader.Value;
+                        if ("".Equals(user) || "".Equals(passwd)) break;
 
-                reader.ReadToFollowing(XmlConstants.USER);
-                reader.MoveToNextAttribute();
-                genre = reader.Value;
-
-                reader.ReadToFollowing(XmlConstants.USER);
-                reader.MoveToNextAttribute();
-                genre = reader.Value;
-
+                        dataForDec.RSA_UsersKeys.Add(user, Convert.FromBase64String(passwd));
+                    }
+                    catch{
+                        break;
+                    }
+                }
             }
 
             return dataForDec;

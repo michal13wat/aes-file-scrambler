@@ -9,6 +9,6 @@ namespace AESFileScrambler
 {
     class DataForDec : CommonDataEncDec
     {
-        List<UserPasswd> listUserPasswd = new List<UserPasswd>();
+        public long PositionReadingFile { get; set; }
     }
 }
