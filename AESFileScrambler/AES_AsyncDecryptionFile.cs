@@ -54,23 +54,6 @@ namespace AESFileScrambler
                     }
                 }
 
-
-                //using (StreamReader sw = new StreamReader(fsCrypt))
-                //{
-                //    string line = "";
-                //    string xmlString = "";
-                //    while (true)
-                //    {
-                //        xmlString += line = sw.ReadLine();
-                //        if (line.Equals(delimiter))
-                //        {
-                //            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(xmlString);
-                //            position = bytes.Length;
-                //            break;
-                //        }
-                //    }
-                //}
-
                 RijndaelManaged AES = new RijndaelManaged();
 
                 AES.KeySize = data.KeySize;
@@ -88,7 +71,6 @@ namespace AESFileScrambler
                 CryptoStream cs = new CryptoStream(fsCrypt,
                     AES.CreateDecryptor(),
                     CryptoStreamMode.Read);
-                //cs.Seek(position, SeekOrigin.Begin);
 
                 FileStream fsOut = new FileStream(data.OutputFile, FileMode.Create);
 
@@ -96,8 +78,6 @@ namespace AESFileScrambler
                 long lenStream = fsCrypt.Length;
 
                 int prevVal = 0;
-                //byte[] bytes = new byte[position];
-                //cs.Read(bytes, 0, position);
 
                 for (long i = 0; (encryptedData = cs.ReadByte()) != -1; i++)
                 {

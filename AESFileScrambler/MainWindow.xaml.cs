@@ -46,7 +46,7 @@ namespace AESFileScrambler
             }
             catch { }
 
-            secretPrimeNumber = PrimeNumberGenerator.genpr2(512);
+            secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -231,10 +231,10 @@ namespace AESFileScrambler
 
         private DataTable tablePreparedUsers = new DataTable();
         private SHA256 mySHA256 = SHA256.Create();
-        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\myFile.zip";
+        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\inExFiles\\3.zip";
         private string encOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
         private string decInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
-        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\decryptedFile.zip";
+        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\outExFiles\\decryptedFile.zip";
 
         private OpenFileDialog file = new OpenFileDialog();
 
