@@ -10,14 +10,10 @@ using System.Windows;
 
 namespace AESFileScrambler
 {
-    class AES_AsyncDecryptionFile
+    public class AES_AsyncDecryptionFile : AES_AsyncCommon
     {
-        public BackgroundWorker backgroundWorker;
         public AES_AsyncDecryptionFile()
         {
-            backgroundWorker = new BackgroundWorker();
-            backgroundWorker.WorkerReportsProgress = true;
-            backgroundWorker.WorkerSupportsCancellation = true;
             backgroundWorker.DoWork += DecyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted += DecryptAsyncCompleted;
         }
@@ -26,9 +22,7 @@ namespace AESFileScrambler
         {
             backgroundWorker.DoWork -= DecyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted -= DecryptAsyncCompleted;
-            backgroundWorker.ProgressChanged -=
-                (System.Windows.Application.Current.MainWindow as MainWindow)
-                .updateDecProgressBar;
+            base.AES_Completed();
             MessageBox.Show("Succes!\nFile is decprypted.");
         }
 

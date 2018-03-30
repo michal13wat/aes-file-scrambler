@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AESFileScrambler
 {
-    class DataForDec : CommonDataEncDec
+    public class DataForDec : CommonDataEncDec
     {
         public long PositionReadingFile { get; set; }
     }

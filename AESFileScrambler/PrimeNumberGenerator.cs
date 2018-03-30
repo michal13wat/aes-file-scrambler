@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AESFileScrambler
 {
-    class PrimeNumberGenerator
+    public class PrimeNumberGenerator
     {
         static public Org.BouncyCastle.Math.BigInteger genpr2(int bits)
         {

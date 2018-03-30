@@ -29,15 +29,15 @@ namespace AESFileScrambler
         {
             InitializeComponent();
 
-            tbEncInFile.Text = encInFile;
-            tbEncOutFile.Text = encOutFile;
-            tbDecInFile.Text = decInFile;
-            tbDecOutFile.Text = decOutFile;
+            tbEncInFile.Text = AES_Configuration.encInFile;
+            tbEncOutFile.Text = AES_Configuration.encOutFile;
+            tbDecInFile.Text = AES_Configuration.decInFile;
+            tbDecOutFile.Text = AES_Configuration.decOutFile;
 
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
 
-            dataForDec.InputFile = decInFile;
+            dataForDec.InputFile = AES_Configuration.decInFile;
             XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
             dataForDec = reader.ReadXml();
 
@@ -46,7 +46,7 @@ namespace AESFileScrambler
             }
             catch { }
 
-            secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
+            AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -75,11 +75,11 @@ namespace AESFileScrambler
             string user = tbUserName.Text;
             string passwd = pbPassword.Password.ToString();
 
-            if(usersPasswords.ContainsKey(user))
+            if(AES_Configuration.usersPasswords.ContainsKey(user))
                 MessageBox.Show("User already exists. Try with another name!");
             else{
-                
-                usersPasswords.Add(user, mySHA256.ComputeHash(Encoding.ASCII.GetBytes(passwd)));
+
+                AES_Configuration.usersPasswords.Add(user, mySHA256.ComputeHash(Encoding.ASCII.GetBytes(passwd)));
 
                 tablePreparedUsers.Rows.Add(user, replaceStringOnStars(passwd));
                 tablePreparedUsers.AcceptChanges();
@@ -118,21 +118,6 @@ namespace AESFileScrambler
             }
         }
 
-        private CipherMode mapEncModeStringToEnum(string modeName) {
-            CipherMode encMode;
-
-            string encModeString = modeName;
-            switch (encModeString)
-            {
-                case "CBC": encMode = CipherMode.CBC; break;
-                case "CFB": encMode = CipherMode.CFB; break;
-                case "EBC": encMode = CipherMode.ECB; break;
-                case "OFB": encMode = CipherMode.OFB; break;
-                default: encMode = CipherMode.CBC; break;
-            }
-            return encMode;
-        }
-
         private void btnEncryptClik(object sender, RoutedEventArgs e){
             byte[] passwdHash;
 
@@ -140,21 +125,17 @@ namespace AESFileScrambler
             if (true) {
 
                 DataForEnc data = new DataForEnc();
-                data.InputFile = encInFile;
-                data.OutputFile = encOutFile;
-                data.AES_KeyBytes = secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
-                data.CipherMode = mapEncModeStringToEnum(cbEncMode.Text);
+                data.InputFile = AES_Configuration.encInFile;
+                data.OutputFile = AES_Configuration.encOutFile;
+                data.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
                 data.StringCipherMode = cbEncMode.Text;
                 data.KeySize = 128;
                 data.BlockSize = 128;
-                data.RSA_UsersKeys = this.usersPasswords;
+                data.RSA_UsersKeys = AES_Configuration.usersPasswords;
 
                 AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
                 asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
                 asyncEnc.backgroundWorker.RunWorkerAsync(data);
-
-                //Encryption.AES_Encrypt(encInFile, encOutFile, mySHA256.ComputeHash(passwdHash),
-                //mapEncModeStringToEnum(cbEncMode.Text));
             }
         }
         
@@ -163,12 +144,9 @@ namespace AESFileScrambler
 
             if (dataForDec.RSA_UsersKeys.TryGetValue(cbUsers.Text.ToString(), out passwdHash)){
 
-                dataForDec.InputFile = decInFile;
-                dataForDec.OutputFile = decOutFile;
-                dataForDec.AES_KeyBytes = secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
-
-                // TODO - CipeherMode musi być odczytywany z pliku!!!
-                //dataForDec.CipherMode = CipherMode.CBC; //mapEncModeStringToEnum(cbEncMode.Text);
+                dataForDec.InputFile = AES_Configuration.decInFile;
+                dataForDec.OutputFile = AES_Configuration.decOutFile;
+                dataForDec.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
 
                 AES_AsyncDecryptionFile asyncDec = new AES_AsyncDecryptionFile();
                 asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
@@ -184,8 +162,8 @@ namespace AESFileScrambler
 
             bool? temp = file.ShowDialog();
             if (temp.HasValue ? temp.Value : false){
-                encInFile = file.FileName;
-                tbEncInFile.Text = encInFile;
+                AES_Configuration.encInFile = file.FileName;
+                tbEncInFile.Text = AES_Configuration.encInFile;
             }
         }
 
@@ -194,8 +172,8 @@ namespace AESFileScrambler
             bool? temp = file.ShowDialog();
             if (temp.HasValue ? temp.Value : false)
             {
-                encOutFile = file.FileName;
-                tbEncOutFile.Text = encOutFile;
+                AES_Configuration.encOutFile = file.FileName;
+                tbEncOutFile.Text = AES_Configuration.encOutFile;
             }
         }
 
@@ -204,10 +182,10 @@ namespace AESFileScrambler
             bool? temp = file.ShowDialog();
             if (temp.HasValue ? temp.Value : false)
             {
-                decInFile = file.FileName;
-                tbDecInFile.Text = decInFile;
+                AES_Configuration.decInFile = file.FileName;
+                tbDecInFile.Text = AES_Configuration.decInFile;
 
-                dataForDec.InputFile = decInFile;
+                dataForDec.InputFile = AES_Configuration.decInFile;
                 XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
                 // TODO - zapisać to do DataForDecrypted i użytkowników wrzucić na
                 // tą listę wyboru
@@ -221,25 +199,17 @@ namespace AESFileScrambler
             bool? temp = file.ShowDialog();
             if (temp.HasValue ? temp.Value : false)
             {
-                decOutFile = file.FileName;
-                tbDecOutFile.Text = decOutFile;
+                AES_Configuration.decOutFile = file.FileName;
+                tbDecOutFile.Text = AES_Configuration.decOutFile;
             }
         }
 
-        private Dictionary<string, byte[]> usersPasswords 
-            = new Dictionary<string, byte[]>();
-
         private DataTable tablePreparedUsers = new DataTable();
         private SHA256 mySHA256 = SHA256.Create();
-        private string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\inExFiles\\3.zip";
-        private string encOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
-        private string decInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
-        private string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\outExFiles\\decryptedFile.zip";
 
         private OpenFileDialog file = new OpenFileDialog();
 
         private CommonDataEncDec dataForDec = new DataForDec();
-        private Org.BouncyCastle.Math.BigInteger secretPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
         //private Org.BouncyCastle.Math.BigInteger encryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
         //private Org.BouncyCastle.Math.BigInteger decryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
     }

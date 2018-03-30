@@ -84,12 +84,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AES_AsyncCommon.cs" />
     <Compile Include="AES_AsyncDecryptionFile.cs" />
     <Compile Include="AES_AsyncEncryptionFile.cs" />
     <Compile Include="CommonDataEncDec.cs" />
     <Compile Include="DataForDec.cs" />
     <Compile Include="DataForEnc.cs" />
     <Compile Include="PrimeNumberGenerator.cs" />
+    <Compile Include="AES_Configuration.cs" />
     <Compile Include="RSA_Decrypt.cs" />
     <Compile Include="RSA_Encrypt.cs" />
     <Compile Include="UserPasswd.cs" />

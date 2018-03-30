@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Security.Cryptography;
 using System.IO;
+using AESFileScrambler;
+using System.Threading;
 
 namespace NUnitTests
 {
@@ -17,44 +19,79 @@ namespace NUnitTests
         [Test, Order(1)]
         public void testThatPrevFilesDoesNotExists()
         {
-            File.Delete(encryptedFile);
-            File.Delete(decryptedFile);
+            File.Delete(AES_Configuration.encOutFile);
+            File.Delete(AES_Configuration.decOutFile);
 
-            Assert.IsFalse(File.Exists(encryptedFile));
-            Assert.IsFalse(File.Exists(decryptedFile));
+            Assert.IsFalse(File.Exists(AES_Configuration.encOutFile));
+            Assert.IsFalse(File.Exists(AES_Configuration.decOutFile));
         }
 
-        //[Test, Order(2)]
-        //public void testEncryptionFile()
-        //{
+        [Test, Order(2)]
+        public void testEncryptionFile()
+        {
+            AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
 
-        //    AESFileScrambler.Encryption.AES_Encrypt(inputFile,
-        //        encryptedFile,
-        //        mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
-        //        cipherMode);
+            DataForEnc data = new DataForEnc();
+            data.InputFile = AES_Configuration.encInFile;
+            data.OutputFile = AES_Configuration.encOutFile;
+            data.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
+            data.CipherMode = AES_Configuration.cipherMode;
+            data.KeySize = 128;
+            data.BlockSize = 128;
+            AES_Configuration.usersPasswords.Add("John", mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")));
+            data.RSA_UsersKeys = AES_Configuration.usersPasswords;
 
-        //    Assert.IsTrue(File.Exists(encryptedFile));
-        //}
+            AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
+            //asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
+            asyncEnc.backgroundWorker.RunWorkerAsync(data);
 
-        //[Test, Order(3)]
-        //public void testDecryptionFile()
-        //{
+            waitForEndBackgroundWorkder(asyncEnc);
 
-        //    AESFileScrambler.Encryption.AES_Decrypt(encryptedFile,
-        //        decryptedFile,
-        //        mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")),
-        //        cipherMode);
+            Assert.IsTrue(File.Exists(AES_Configuration.encOutFile));
+        }
 
-        //    Assert.IsTrue(File.Exists(encryptedFile));
-        //}
+        [Test, Order(3)]
+        public void testDecryptionFile()
+        {
+            CommonDataEncDec dataForDec = new DataForDec();
+            dataForDec.CipherMode = AES_Configuration.cipherMode;
+            dataForDec.InputFile = AES_Configuration.decInFile;
+            dataForDec.OutputFile = AES_Configuration.decOutFile;
+            dataForDec.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
+            dataForDec.KeySize = 128;
+            dataForDec.BlockSize = 128;
+
+            AES_AsyncDecryptionFile asyncDec = new AES_AsyncDecryptionFile();
+            //asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
+            asyncDec.backgroundWorker.RunWorkerAsync(dataForDec);
+
+            waitForEndBackgroundWorkder(asyncDec);
+
+            Assert.IsTrue(File.Exists(AES_Configuration.decOutFile));
+        }
         //byte by byte
 
 
         [Test, Order(4)]
-        public void compareInAndOutFiles() {
-            Assert.IsTrue(CompareByBytes(new FileInfo(inputFile), new FileInfo(decryptedFile)));
-            Assert.IsTrue(CompareByHash_MD5( new FileInfo(inputFile), new FileInfo(decryptedFile)));
-            Assert.IsTrue(CompareByHash_SHA256(new FileInfo(inputFile), new FileInfo(decryptedFile)));
+        public void compareInAndOutFilesByBytes() {
+            Assert.IsTrue(CompareByBytes(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
+        }
+
+        [Test, Order(5)]
+        public void compareInAndOutFilesByMD5()
+        {
+            Assert.IsTrue(CompareByHash_MD5(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
+        }
+
+        [Test, Order(6)]
+        public void compareInAndOutFilesBySHA256()
+        {
+            Assert.IsTrue(CompareByHash_SHA256(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
+        }
+
+
+        private void waitForEndBackgroundWorkder(AES_AsyncCommon asyncEnc) {
+            while (asyncEnc.backgroundWorker.IsBusy) Thread.Sleep(200);
         }
 
         private bool CompareByBytes(FileInfo file1, FileInfo file2)
@@ -103,14 +140,6 @@ namespace NUnitTests
             return true;
         }
 
-
-        private const string inputFile
-            = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\AESFileScrambler\\NUnitTests\\bin\\Debug\\in\\myFile.zip";
-        private const string encryptedFile
-            = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\AESFileScrambler\\NUnitTests\\bin\\Debug\\encryptedFile";
-        private const string decryptedFile
-            = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\AESFileScrambler\\NUnitTests\\bin\\Debug\\out\\myFile.zip";
-        private CipherMode cipherMode = CipherMode.CBC;
         private SHA256 mySHA256 = SHA256.Create();
     }
 }

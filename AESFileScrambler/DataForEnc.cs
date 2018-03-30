@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace AESFileScrambler
 {
-    class DataForEnc : CommonDataEncDec{ }
+    public class DataForEnc : CommonDataEncDec{ }
 }

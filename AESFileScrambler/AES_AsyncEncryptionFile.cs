@@ -11,14 +11,10 @@ using System.Windows;
 
 namespace AESFileScrambler
 {
-    class AES_AsyncEncryptionFile
+    public class AES_AsyncEncryptionFile : AES_AsyncCommon
     {
-        public BackgroundWorker backgroundWorker;
         public AES_AsyncEncryptionFile()
         {
-            backgroundWorker = new BackgroundWorker();
-            backgroundWorker.WorkerReportsProgress = true;
-            backgroundWorker.WorkerSupportsCancellation = true;
             backgroundWorker.DoWork += EncyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted += EncryptAsyncCompleted;
         }
@@ -27,9 +23,7 @@ namespace AESFileScrambler
         {
             backgroundWorker.DoWork -= EncyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted -= EncryptAsyncCompleted;
-            backgroundWorker.ProgressChanged -= 
-                (System.Windows.Application.Current.MainWindow as MainWindow)
-                .updateEncProgressBar;
+            base.AES_Completed();
             MessageBox.Show("Succes!\nFile is encprypted.");
         }
 
@@ -44,6 +38,12 @@ namespace AESFileScrambler
             writer.WriteToXml();
 
             FileStream fsCrypt = new FileStream(cryptFile, FileMode.Append);
+
+            //RijndaelManaged RMCrypto = new RijndaelManaged();
+
+            //CryptoStream cs = new CryptoStream(fsCrypt,
+            //    RMCrypto.CreateEncryptor(data.AES_KeyBytes, saltBytes),
+            //    CryptoStreamMode.Write);
 
             RijndaelManaged AES = new RijndaelManaged();
 
