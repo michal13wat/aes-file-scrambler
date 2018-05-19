@@ -34,18 +34,37 @@ namespace AESFileScrambler
 
             FileStream fsCrypt = new FileStream(data.InputFile, FileMode.Open);
             Int32 position = 0;
-            using (StreamReader streamReader = new StreamReader(fsCrypt))
+            using (BinaryReader reader = new BinaryReader(fsCrypt))
             {
-                while (!streamReader.EndOfStream)
+                byte prevByte = 0;
+                byte readByte;
+                int delimeterSignsCounter = 0;
+
+                while (true)
                 {
-                    string line = streamReader.ReadLine();
-                    position += line.Length;
-                    if (line.Equals(delimiter))
+                    readByte = reader.ReadByte();
+                    position++;
+                    if (readByte == 0x3d && prevByte == 0x3d)
                     {
-                        // dla jednego użytkownika działało -22
-                        fsCrypt.Seek(position - 22, SeekOrigin.Begin);
-                        break;
+                        delimeterSignsCounter++;
+                        if(delimeterSignsCounter >= 52)
+                        {
+                            fsCrypt.Seek(2, SeekOrigin.Current);
+                            break;
+                        }
                     }
+                    else delimeterSignsCounter = 0;
+
+                    prevByte = readByte;
+
+                    //string line = streamReader.ReadLine();
+                    //position += line.Length;
+                    //if (line.Equals(delimiter))
+                    //{
+                    //    // dla jednego użytkownika działało -22
+                    //    fsCrypt.Seek(position + 7, SeekOrigin.Begin);
+                    //    break;
+                    //}
                 }
 
                 RijndaelManaged AES = new RijndaelManaged();

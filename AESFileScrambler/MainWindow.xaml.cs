@@ -210,6 +210,7 @@ namespace AESFileScrambler
         private OpenFileDialog file = new OpenFileDialog();
 
         private CommonDataEncDec dataForDec = new DataForDec();
+
         //private Org.BouncyCastle.Math.BigInteger encryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
         //private Org.BouncyCastle.Math.BigInteger decryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
     }
