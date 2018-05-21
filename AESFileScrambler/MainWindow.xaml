@@ -11,7 +11,7 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="473" Margin="10,10,0,0" VerticalAlignment="Top" Width="805">
+        <TabControl x:Name="tabControl" HorizontalAlignment="Left" Height="473" Margin="10,10,0,0" VerticalAlignment="Top" Width="805" >
             <TabItem Header="Encryption" Margin="0,0,-4,-3">
                 <Grid Background="#FFE5E5E5" Margin="0,1,5,0">
                     <Label x:Name="label" Content="Input file:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
@@ -48,7 +48,7 @@
                     </ListView>
                 </Grid>
             </TabItem>
-            <TabItem Header="Decryption">
+            <TabItem Header="Decryption" >
                 <Grid Background="#FFE5E5E5" Margin="0,2,0,-1">
                     <Grid Background="#FFE5E5E5" Margin="0,1,5,5">
                         <Label x:Name="label5" Content="Input file:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>

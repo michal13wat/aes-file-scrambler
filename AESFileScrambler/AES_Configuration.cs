@@ -16,7 +16,7 @@ namespace AESFileScrambler
         public static CipherMode cipherMode = CipherMode.CBC;
         public static Org.BouncyCastle.Math.BigInteger secretPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
 
-        public static Dictionary<string, byte[]> usersPasswords
-            = new Dictionary<string, byte[]>();
+        //public static Dictionary<string, byte[]> usersPasswords
+        //    = new Dictionary<string, byte[]>();
     }
 }

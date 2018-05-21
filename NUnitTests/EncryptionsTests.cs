@@ -38,8 +38,8 @@ namespace NUnitTests
             data.CipherMode = AES_Configuration.cipherMode;
             data.KeySize = 128;
             data.BlockSize = 128;
-            AES_Configuration.usersPasswords.Add("John", mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")));
-            data.RSA_UsersKeys = AES_Configuration.usersPasswords;
+            data.UsersCollection.Add("John", new UserData()
+            { Name = "John", Passwd = mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")) }); 
 
             AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
             //asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;

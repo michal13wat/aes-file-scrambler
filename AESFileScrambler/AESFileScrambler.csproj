@@ -94,7 +94,7 @@
     <Compile Include="AES_Configuration.cs" />
     <Compile Include="RSA.cs" />
     <Compile Include="RSA_Configuration.cs" />
-    <Compile Include="UserPasswd.cs" />
+    <Compile Include="UserData.cs" />
     <Compile Include="XmlConstants.cs" />
     <Compile Include="XmlTextReaderWriter.cs" />
     <Page Include="MainWindow.xaml">

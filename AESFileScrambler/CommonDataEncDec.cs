@@ -29,7 +29,8 @@ namespace AESFileScrambler
             }
         }
 
-        public Dictionary<string, byte[]> RSA_UsersKeys = new Dictionary<string, byte[]>();
+        //public Dictionary<string, byte[]> RSA_UsersKeys = new Dictionary<string, byte[]>();
+        public Dictionary<string, UserData> UsersCollection = new Dictionary<string, UserData>();
 
         private CipherMode mapEncModeStringToEnum(string modeName)
         {

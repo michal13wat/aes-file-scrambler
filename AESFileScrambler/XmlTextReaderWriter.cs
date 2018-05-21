@@ -40,13 +40,13 @@ namespace AESFileScrambler
 
             writer.WriteStartElement(XmlConstants.APPROVED_USERS);
 
-            foreach (KeyValuePair<string, byte[]> up in data.RSA_UsersKeys) {
+            foreach (KeyValuePair<string, UserData> up in data.UsersCollection) {
                 writer.WriteStartElement(XmlConstants.USER);
                 writer.WriteAttributeString("xmlns", "x", null, up.Key);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(XmlConstants.SESSION_KEY);
-                writer.WriteAttributeString("xmlns", "x", null, Convert.ToBase64String(up.Value));
+                writer.WriteAttributeString("xmlns", "x", null, Convert.ToBase64String(up.Value.PasswdHash));
                 writer.WriteEndElement();
             }
 
@@ -85,7 +85,7 @@ namespace AESFileScrambler
             }
             catch {
                 MessageBox.Show("Can not open file input file to decrypted!");
-                return null;
+                return dataForDec;
             }
 
             using (XmlReader reader
@@ -120,7 +120,7 @@ namespace AESFileScrambler
 
                         if ("".Equals(user) || "".Equals(passwd)) break;
 
-                        dataForDec.RSA_UsersKeys.Add(user, Convert.FromBase64String(passwd));
+                        dataForDec.UsersCollection.Add(user, new UserData() { Passwd = Convert.FromBase64String(passwd) });
                     }
                     catch{
                         break;
