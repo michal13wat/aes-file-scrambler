@@ -57,7 +57,7 @@
                         <Label x:Name="label6" Content="Output file:" HorizontalAlignment="Left" Margin="10,75,0,0" VerticalAlignment="Top"/>
                         <TextBox x:Name="tbDecOutFile" HorizontalAlignment="Left" Height="24" Margin="10,101,0,0" TextWrapping="NoWrap" AcceptsReturn="False" Text="filePath" VerticalAlignment="Top" Width="257"/>
                         <Button x:Name="btnDecOutFile" Content="..." HorizontalAlignment="Left" Margin="283,101,0,0" VerticalAlignment="Top" Width="38" Click="btnDecOutFile_Click"/>
-                        <ComboBox x:Name="cbUsers" HorizontalAlignment="Left" Margin="456,14,0,0" VerticalAlignment="Top" Width="120"/>
+                        <ComboBox x:Name="cbUsers" HorizontalAlignment="Left" Margin="456,14,0,0" VerticalAlignment="Top" Width="120" />
                         <ProgressBar x:Name="pbDec" HorizontalAlignment="Left" Height="17" Margin="10,170,0,0" VerticalAlignment="Top" Width="248"/>
                         <Label x:Name="label8" Content="Decryption preogress:" HorizontalAlignment="Left" Margin="10,144,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.132,0.077"/>
                         <Label x:Name="lbDecProgress" Content="0%" HorizontalAlignment="Left" Margin="274,162,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.615,0.923" Height="25" Width="56"/>

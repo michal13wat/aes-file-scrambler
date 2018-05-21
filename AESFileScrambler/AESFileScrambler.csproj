@@ -92,8 +92,8 @@
     <Compile Include="DataForEnc.cs" />
     <Compile Include="PrimeNumberGenerator.cs" />
     <Compile Include="AES_Configuration.cs" />
-    <Compile Include="RSA_Decrypt.cs" />
-    <Compile Include="RSA_Encrypt.cs" />
+    <Compile Include="RSA.cs" />
+    <Compile Include="RSA_Configuration.cs" />
     <Compile Include="UserPasswd.cs" />
     <Compile Include="XmlConstants.cs" />
     <Compile Include="XmlTextReaderWriter.cs" />

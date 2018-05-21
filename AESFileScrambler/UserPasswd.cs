@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace AESFileScrambler
 {
-    class UserPasswd
+    public class UserPasswd
     {
+        //public static List<UserPasswd> Data = new List<UserPasswd>();
         public string User { get; set; }
         public string Passwd { get; set; }
     }

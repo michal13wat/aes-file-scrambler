@@ -155,7 +155,9 @@ namespace AESFileScrambler
         }
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
+            //for(Dictionary<string, byte[]> u : dataForDec.RSA_UsersKeys) {
 
+            //}
         }
 
         private void btnEncInFile_Click(object sender, RoutedEventArgs e){
