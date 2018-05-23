@@ -34,16 +34,7 @@ namespace AESFileScrambler
             byte[] saltBytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
             string cryptFile = data.OutputFile;
 
-            XmlTextReaderWriter writer = new XmlTextReaderWriter(data);
-            writer.WriteToXml();
-
             FileStream fsCrypt = new FileStream(cryptFile, FileMode.Append);
-
-            //RijndaelManaged RMCrypto = new RijndaelManaged();
-
-            //CryptoStream cs = new CryptoStream(fsCrypt,
-            //    RMCrypto.CreateEncryptor(data.AES_KeyBytes, saltBytes),
-            //    CryptoStreamMode.Write);
 
             RijndaelManaged AES = new RijndaelManaged();
 

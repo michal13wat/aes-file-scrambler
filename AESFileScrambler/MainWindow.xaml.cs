@@ -17,6 +17,9 @@ using System.Windows.Shapes;
 using System.Security.Cryptography;
 using Microsoft.Win32;
 using System.ComponentModel;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace AESFileScrambler
 {
@@ -46,7 +49,7 @@ namespace AESFileScrambler
             }
             catch { }
 
-            AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
+            //AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -122,34 +125,61 @@ namespace AESFileScrambler
         }
 
         private void btnEncryptClik(object sender, RoutedEventArgs e){
-            byte[] passwdHash;
 
-            //usersPasswords.TryGetValue("John", out passwdHash)
-            if (true) {
+            dataForEnc.InputFile = AES_Configuration.encInFile;
+            dataForEnc.OutputFile = AES_Configuration.encOutFile;
 
-                //DataForEnc data = new DataForEnc();
-                dataForEnc.InputFile = AES_Configuration.encInFile;
-                dataForEnc.OutputFile = AES_Configuration.encOutFile;
-                dataForEnc.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
-                dataForEnc.StringCipherMode = cbEncMode.Text;
-                dataForEnc.KeySize = 128;
-                dataForEnc.BlockSize = 128;
-                //data.UsersCollection = AES_Configuration.usersPasswords;
-
-                AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
-                asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
-                asyncEnc.backgroundWorker.RunWorkerAsync(dataForEnc);
+            try{
+                dataForEnc.AES_KeyBytes = dataForEnc.UsersCollection.First().Value.PlainSesKey;
             }
+            catch {
+                MessageBox.Show("Error: Before encrypt file you have to add minimum one recepient!");
+                return;
+            }
+
+            dataForEnc.StringCipherMode = cbEncMode.Text;
+            dataForEnc.KeySize = 128;
+            dataForEnc.BlockSize = 128;
+
+            XmlTextReaderWriter writer = new XmlTextReaderWriter(dataForEnc);
+            writer.WriteToXml();
+
+            AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
+            asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
+            asyncEnc.backgroundWorker.RunWorkerAsync(dataForEnc);
         }
         
         private void btnDecryptClick(object sender, RoutedEventArgs e){
-            UserData user;
+            UserData userData;
+            string key = cbUsers.Text.ToString();
+            RSA RSA_Decryptor = new RSA();
 
-            if (dataForDec.UsersCollection.TryGetValue(cbUsers.Text.ToString(), out user)){
+            refreshCbUsers();
+
+            if (dataForDec.UsersCollection.TryGetValue(key, out userData)){
+
+                // tutaj zrobić odczytywanie z pliku klucza prywatnego
+
+                try {
+                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\"
+                        + key + "_priv.key");
+                }
+                catch {
+                    MessageBox.Show("Error reading private key!");
+                    return;
+                }
+
+
+                // tutaj zrobić deszyfrowanie klucza prywatnego
+
+                // tutaj zrobić deszyforwanie klucza sesyjnego
+                userData = RSA_Decryptor.DecryptSessionKey(userData);
+                dataForDec.UsersCollection[key] = userData;
 
                 dataForDec.InputFile = AES_Configuration.decInFile;
                 dataForDec.OutputFile = AES_Configuration.decOutFile;
-                dataForDec.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
+
+                dataForDec.AES_KeyBytes = userData.PlainSesKey;
 
                 AES_AsyncDecryptionFile asyncDec = new AES_AsyncDecryptionFile();
                 asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
@@ -158,9 +188,36 @@ namespace AESFileScrambler
         }
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
-            //for(Dictionary<string, byte[]> u : dataForDec.RSA_UsersKeys) {
+            RSA RSA_Encryptor = new RSA();
+            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
+            Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
+            UserData tempUserData;
 
+            //if (dataForDec) {
+            //    MessageBox.Show("Error before create recepients you have to add them to above list!");
+            //    return;
             //}
+
+            foreach (KeyValuePair<string, UserData> u in dataForEnc.UsersCollection)
+            {
+                u.Value.PlainSesKey = secretPrimeNumber.ToByteArray();
+
+                tempUserData = RSA_Encryptor.EncryptSessionKey(u.Value);
+                tempDictionary.Add(u.Key, tempUserData);
+            
+
+                // tutaj zrobić szyfrowanie klucza prywatnego
+
+
+                // zapis kluczy do plików
+                RSA_Encryptor.writeRSAParametersToFile(tempUserData.PrivKey,
+                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_priv.key");
+                RSA_Encryptor.writeRSAParametersToFile(tempUserData.PubKey,
+                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_pub.key");
+
+            }
+
+            dataForEnc.UsersCollection = tempDictionary;
         }
 
         private void btnEncInFile_Click(object sender, RoutedEventArgs e){
@@ -197,8 +254,6 @@ namespace AESFileScrambler
         private void refreshCbUsers() {
             dataForDec.InputFile = AES_Configuration.decInFile;
             XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
-            // TODO - zapisać to do DataForDecrypted i użytkowników wrzucić na
-            // tą listę wyboru
             dataForDec = reader.ReadXml();
             cbUsers.ItemsSource = dataForDec.UsersCollection.Keys;
         }
@@ -213,11 +268,6 @@ namespace AESFileScrambler
             }
         }
 
-        //private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if(((sender as TabControl).SelectedItem as TabItem).Header as string == "Decryption")
-        //        refreshCbUsers();
-        //}
 
         private DataTable tablePreparedUsers = new DataTable();
         private SHA256 mySHA256 = SHA256.Create();
@@ -226,8 +276,5 @@ namespace AESFileScrambler
 
         private CommonDataEncDec dataForDec = new DataForDec();
         private CommonDataEncDec dataForEnc = new DataForEnc();
-
-        //private Org.BouncyCastle.Math.BigInteger encryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
-        //private Org.BouncyCastle.Math.BigInteger decryptedPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
     }
 }

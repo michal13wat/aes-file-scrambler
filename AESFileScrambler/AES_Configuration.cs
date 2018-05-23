@@ -14,9 +14,5 @@ namespace AESFileScrambler
         public static string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\outExFiles\\decryptedFile.jpg";
 
         public static CipherMode cipherMode = CipherMode.CBC;
-        public static Org.BouncyCastle.Math.BigInteger secretPrimeNumber = new Org.BouncyCastle.Math.BigInteger("0");
-
-        //public static Dictionary<string, byte[]> usersPasswords
-        //    = new Dictionary<string, byte[]>();
     }
 }

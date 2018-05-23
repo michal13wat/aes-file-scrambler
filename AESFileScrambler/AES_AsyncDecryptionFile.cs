@@ -23,7 +23,12 @@ namespace AESFileScrambler
             backgroundWorker.DoWork -= DecyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted -= DecryptAsyncCompleted;
             base.AES_Completed();
-            MessageBox.Show("Succes!\nFile is decprypted.");
+            if (e.Error != null){
+                MessageBox.Show("Error: " + e.Error.Message);
+            }
+            else {
+                MessageBox.Show("Succes!\nFile is decprypted.");
+            }
         }
 
         void DecyrptAsyncBackgroundWorker(object sender, DoWorkEventArgs e)
@@ -56,15 +61,6 @@ namespace AESFileScrambler
                     else delimeterSignsCounter = 0;
 
                     prevByte = readByte;
-
-                    //string line = streamReader.ReadLine();
-                    //position += line.Length;
-                    //if (line.Equals(delimiter))
-                    //{
-                    //    // dla jednego użytkownika działało -22
-                    //    fsCrypt.Seek(position + 7, SeekOrigin.Begin);
-                    //    break;
-                    //}
                 }
 
                 RijndaelManaged AES = new RijndaelManaged();
@@ -72,14 +68,14 @@ namespace AESFileScrambler
                 AES.KeySize = data.KeySize;
                 AES.BlockSize = data.BlockSize;
 
+                if (data.AES_KeyBytes == null) throw new Exception("Key bytes are NULL!!!");
 
                 var key = new Rfc2898DeriveBytes(data.AES_KeyBytes, saltBytes, 1000);
                 AES.Key = key.GetBytes(AES.KeySize / 8);
                 AES.IV = key.GetBytes(AES.BlockSize / 8);
                 AES.Padding = PaddingMode.Zeros;
 
-                // TODO - zmienić to, żeby nie było ustawione na stałe!!!
-                AES.Mode = CipherMode.CBC; //data.CipherMode;
+                AES.Mode = data.CipherMode;
 
                 CryptoStream cs = new CryptoStream(fsCrypt,
                     AES.CreateDecryptor(),

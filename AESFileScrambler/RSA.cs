@@ -1,71 +1,104 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows;
+using System.Xml;
 
 namespace AESFileScrambler
 {
     class RSA
     {
 
-        public string EncryptSessionKey(string sessionKey, string hashPassword, string user) {
+        public UserData EncryptSessionKey(UserData userData) {
             RSACryptoServiceProvider csp = new RSACryptoServiceProvider(2048);
 
             //how to get the private key
-            PrivateKey = csp.ExportParameters(true);
+            userData.PrivKey = csp.ExportParameters(true);
 
             //and the public key ...
-            PublicKey = csp.ExportParameters(false);
+            userData.PubKey = csp.ExportParameters(false);
 
             csp = new RSACryptoServiceProvider();
-            csp.ImportParameters(PublicKey);
-
-            //for encryption, always handle bytes...
-            var bytesPlainTextData = System.Text.Encoding.Unicode.GetBytes(sessionKey);
+            csp.ImportParameters(userData.PubKey);
 
             //apply pkcs#1.5 padding and encrypt our data 
-            var bytesCypherText = csp.Encrypt(bytesPlainTextData, false);
+            userData.EncSesKey = csp.Encrypt(userData.PlainSesKey, false);
 
             //we might want a string representation of our cypher text... base64 will do
-            return Convert.ToBase64String(bytesCypherText);
+            return userData;
         }
 
-        public string DecryptSessionKey(string encryptedSessionyKey, string hashPassword, string user) {
-            //first, get our bytes back from the base64 string ...
-            var bytesCypherText = Convert.FromBase64String(encryptedSessionyKey);
+        public UserData DecryptSessionKey(UserData userData) {
 
-            csp = new RSACryptoServiceProvider();
-            csp.ImportParameters(PrivateKey);
+            RSACryptoServiceProvider csp = new RSACryptoServiceProvider();
 
-            //decrypt and strip pkcs#1.5 padding
-            var bytesPlainTextData = csp.Decrypt(bytesCypherText, false);
+            try {
+                csp.ImportParameters(userData.PrivKey);
+
+                //decrypt and strip pkcs#1.5 padding
+                userData.PlainSesKey = csp.Decrypt(userData.EncSesKey, false);
+            }
+            catch {
+                MessageBox.Show("RSA error: can not decrypt session key!");
+                return userData;
+            }
 
             //get our original plainText back...
-            return System.Text.Encoding.Unicode.GetString(bytesPlainTextData);
+            return userData;
         }
 
-        private string convertKeyToString(string key) {
-            var sw = new System.IO.StringWriter();
-            //we need a serializer
-            var xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
-            //serialize the key into the stream
-            xs.Serialize(sw, key);
-            //get the string from the stream
-            return sw.ToString();
+        public void writeRSAParametersToFile(RSAParameters rsaParameters, string fileName) {
+
+            string stringKey;
+            {
+                //we need some buffer
+                var sw = new System.IO.StringWriter();
+                //we need a serializer
+                var xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
+                //serialize the key into the stream
+                xs.Serialize(sw, rsaParameters);
+                //get the string from the stream
+                stringKey = sw.ToString();
+            }
+
+            using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+            using (StreamWriter sw = new StreamWriter(fs))
+            {
+                sw.WriteLine(stringKey);
+            }
         }
 
-        private RSAParameters convertKeyToRSAParameters(string key) {
-            var sr = new System.IO.StringReader(key);
+        public RSAParameters readRSAParametersFromFile(string fileName)
+        {
+            RSAParameters readParameters = new RSAParameters();
+
+            string stringKey = "";
+            try
+            {
+                using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                using (StreamReader sw = new StreamReader(fs))
+                {
+                    stringKey = sw.ReadToEnd();
+                }
+
+            }
+            catch
+            {
+                MessageBox.Show("Can not open file with private key!");
+                return readParameters;
+            }
+
+            //get a stream from the string
+            var sr = new System.IO.StringReader(stringKey);
             //we need a deserializer
             var xs = new System.Xml.Serialization.XmlSerializer(typeof(RSAParameters));
             //get the object back from the stream
-            return (RSAParameters)xs.Deserialize(sr);
-        }
-        
-        public RSAParameters PrivateKey { get; internal set; }
-        public RSAParameters PublicKey { get; internal set; }
+            readParameters = (RSAParameters)xs.Deserialize(sr);
 
-        private RSACryptoServiceProvider csp;
-    }
+            return readParameters;
+        }
+    }                        
 }

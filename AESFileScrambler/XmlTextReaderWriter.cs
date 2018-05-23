@@ -46,7 +46,7 @@ namespace AESFileScrambler
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(XmlConstants.SESSION_KEY);
-                writer.WriteAttributeString("xmlns", "x", null, Convert.ToBase64String(up.Value.PasswdHash));
+                writer.WriteAttributeString("xmlns", "x", null, Convert.ToBase64String(up.Value.EncSesKey));
                 writer.WriteEndElement();
             }
 
@@ -105,7 +105,7 @@ namespace AESFileScrambler
                 dataForDec.StringCipherMode = reader.Value;
 
                 string user = "...";
-                string passwd = "...";
+                string sesionKey = "...";
                 while (true)
                 {
                     try
@@ -116,11 +116,11 @@ namespace AESFileScrambler
 
                         reader.ReadToFollowing(XmlConstants.SESSION_KEY);
                         reader.MoveToFirstAttribute();
-                        passwd = reader.Value;
+                        sesionKey = reader.Value;
 
-                        if ("".Equals(user) || "".Equals(passwd)) break;
+                        if ("".Equals(user) || "".Equals(sesionKey)) break;
 
-                        dataForDec.UsersCollection.Add(user, new UserData() { Passwd = Convert.FromBase64String(passwd) });
+                        dataForDec.UsersCollection.Add(user, new UserData() { EncSesKey = Convert.FromBase64String(sesionKey) });
                     }
                     catch{
                         break;
