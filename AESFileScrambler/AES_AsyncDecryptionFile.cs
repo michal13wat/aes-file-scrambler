@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -23,11 +24,15 @@ namespace AESFileScrambler
             backgroundWorker.DoWork -= DecyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted -= DecryptAsyncCompleted;
             base.AES_Completed();
+
+            sw.Stop();
+
             if (e.Error != null){
                 MessageBox.Show("Error: " + e.Error.Message);
             }
             else {
-                MessageBox.Show("Succes!\nFile is decprypted.");
+                MessageBox.Show("Succes!\nFile is decrypted.\nDecrytpion time = "
+                    + sw.Elapsed.Milliseconds + "ms.");
             }
         }
 
@@ -88,6 +93,8 @@ namespace AESFileScrambler
 
                 int prevVal = 0;
 
+                sw.Start();
+
                 for (long i = 0; (encryptedData = cs.ReadByte()) != -1; i++)
                 {
                     fsOut.WriteByte((byte)encryptedData);
@@ -108,5 +115,6 @@ namespace AESFileScrambler
         }
 
         private const string delimiter = "=====================================================";
+        private Stopwatch sw = new Stopwatch();
     }
 }

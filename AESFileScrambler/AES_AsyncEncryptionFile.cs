@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Diagnostics;
 
 namespace AESFileScrambler
 {
@@ -24,7 +25,16 @@ namespace AESFileScrambler
             backgroundWorker.DoWork -= EncyrptAsyncBackgroundWorker;
             backgroundWorker.RunWorkerCompleted -= EncryptAsyncCompleted;
             base.AES_Completed();
-            MessageBox.Show("Succes!\nFile is encprypted.");
+            sw.Stop();
+
+            if (e.Error != null){
+                MessageBox.Show("Error: " + e.Error.Message 
+                    + "\n\n Details: " + e.Error.StackTrace);
+            }
+            else {
+                MessageBox.Show("Succes!\nFile is encprypted.\nEncrytpion time = "
+                + sw.Elapsed.Milliseconds + "ms.");
+            }
         }
 
         void EncyrptAsyncBackgroundWorker(object sender, DoWorkEventArgs e)
@@ -57,6 +67,8 @@ namespace AESFileScrambler
             int encryptedData;
             long lenStream = fsIn.Length;
 
+            sw.Start();
+
             int prevVal = 0;
             long i = 0;
             for (; (encryptedData = fsIn.ReadByte()) != -1; i++)
@@ -74,5 +86,7 @@ namespace AESFileScrambler
             cs.Close();
             fsCrypt.Close();
         }
+
+        private Stopwatch sw = new Stopwatch();
     }
 }

@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace AESFileScrambler
 {
