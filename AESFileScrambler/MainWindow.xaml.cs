@@ -49,7 +49,6 @@ namespace AESFileScrambler
             }
             catch { }
 
-            //AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -161,7 +160,7 @@ namespace AESFileScrambler
                 // tutaj zrobić odczytywanie z pliku klucza prywatnego
 
                 try {
-                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\"
+                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\private\\"
                         + key + "_priv.key");
                 }
                 catch {
@@ -189,7 +188,9 @@ namespace AESFileScrambler
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
             RSA RSA_Encryptor = new RSA();
-            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
+
+            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128, 
+                DateTime.Now.ToBinary());
             Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
             UserData tempUserData;
 
@@ -211,9 +212,9 @@ namespace AESFileScrambler
 
                 // zapis kluczy do plików
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PrivKey,
-                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_priv.key");
+                    RSA_Configuration.keyDirectory + "\\private\\" + u.Key + "_priv.key");
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PubKey,
-                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_pub.key");
+                    RSA_Configuration.keyDirectory + "\\public\\" + u.Key + "_pub.key");
 
             }
 
