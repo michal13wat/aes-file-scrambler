@@ -198,7 +198,7 @@ namespace AESFileScrambler
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
             RSA RSA_Encryptor = new RSA();
-            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
+            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128, );
             Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
             UserData tempUserData;
 
