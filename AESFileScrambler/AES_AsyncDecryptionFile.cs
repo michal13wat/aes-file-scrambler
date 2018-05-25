@@ -32,7 +32,7 @@ namespace AESFileScrambler
             }
             else {
                 MessageBox.Show("Succes!\nFile is decrypted.\nDecrytpion time = "
-                    + sw.Elapsed.Milliseconds + "ms.");
+                    + sw.ElapsedMilliseconds + "ms.");
             }
         }
 
@@ -80,7 +80,7 @@ namespace AESFileScrambler
                 AES.IV = key.GetBytes(AES.BlockSize / 8);
                 AES.Padding = PaddingMode.Zeros;
 
-                AES.Mode = data.CipherMode;
+                AES.Mode = data.CipherMode != CipherMode.OFB ? data.CipherMode : CipherMode.CBC;
 
                 CryptoStream cs = new CryptoStream(fsCrypt,
                     AES.CreateDecryptor(),

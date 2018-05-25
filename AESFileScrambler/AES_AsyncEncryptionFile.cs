@@ -33,7 +33,7 @@ namespace AESFileScrambler
             }
             else {
                 MessageBox.Show("Succes!\nFile is encprypted.\nEncrytpion time = "
-                + sw.Elapsed.Milliseconds + "ms.");
+                + sw.ElapsedMilliseconds + "ms.");
             }
         }
 
@@ -56,7 +56,7 @@ namespace AESFileScrambler
             AES.IV = key.GetBytes(AES.BlockSize / 8);
             AES.Padding = PaddingMode.Zeros;
 
-            AES.Mode = data.CipherMode;
+            AES.Mode = data.CipherMode != CipherMode.OFB ? data.CipherMode : CipherMode.CBC;
 
             CryptoStream cs = new CryptoStream(fsCrypt,
                  AES.CreateEncryptor(),
@@ -79,6 +79,7 @@ namespace AESFileScrambler
                     backgroundWorker.ReportProgress(prevVal);
                 }
             }
+
             backgroundWorker.ReportProgress(100);
 
 
