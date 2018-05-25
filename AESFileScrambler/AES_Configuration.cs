@@ -8,10 +8,10 @@ namespace AESFileScrambler
 {
     public class AES_Configuration
     {
-        public static string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\inExFiles\\6.zip";
-        public static string encOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
+        public static string encInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\inExFiles\\1.jpg";
+        public static string encOutDirectory = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\";
         public static string decInFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\encryptedFile";
-        public static string decOutFile = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\outExFiles\\decryptedFile.jpg";
+        public static string decOutDirectory = "E:\\mojfolder\\Studia\\semestr_6\\BSK\\Projekty\\projekt1\\outExFiles\\";
 
         public static CipherMode cipherMode = CipherMode.CBC;
     }

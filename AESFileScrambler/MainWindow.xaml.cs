@@ -20,7 +20,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
-using System.Diagnostics;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace AESFileScrambler
 {
@@ -34,9 +34,9 @@ namespace AESFileScrambler
             InitializeComponent();
 
             tbEncInFile.Text = AES_Configuration.encInFile;
-            tbEncOutFile.Text = AES_Configuration.encOutFile;
+            tbEncOutFile.Text = AES_Configuration.encOutDirectory;
             tbDecInFile.Text = AES_Configuration.decInFile;
-            tbDecOutFile.Text = AES_Configuration.decOutFile;
+            tbDecOutFile.Text = AES_Configuration.decOutDirectory;
 
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
@@ -50,6 +50,7 @@ namespace AESFileScrambler
             }
             catch { }
 
+            //AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -124,10 +125,18 @@ namespace AESFileScrambler
             }
         }
 
+        private void refreshCbUsers()
+        {
+            dataForDec.InputFile = AES_Configuration.decInFile;
+            XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
+            dataForDec = reader.ReadXml();
+            cbUsers.ItemsSource = dataForDec.UsersCollection.Keys;
+        }
+
         private void btnEncryptClik(object sender, RoutedEventArgs e){
 
             dataForEnc.InputFile = AES_Configuration.encInFile;
-            dataForEnc.OutputFile = AES_Configuration.encOutFile;
+            dataForEnc.OutputFile = AES_Configuration.encOutDirectory;
 
             try{
                 dataForEnc.AES_KeyBytes = dataForEnc.UsersCollection.First().Value.PlainSesKey;
@@ -161,7 +170,7 @@ namespace AESFileScrambler
                 // tutaj zrobić odczytywanie z pliku klucza prywatnego
 
                 try {
-                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\private\\"
+                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\"
                         + key + "_priv.key");
                 }
                 catch {
@@ -177,7 +186,7 @@ namespace AESFileScrambler
                 dataForDec.UsersCollection[key] = userData;
 
                 dataForDec.InputFile = AES_Configuration.decInFile;
-                dataForDec.OutputFile = AES_Configuration.decOutFile;
+                dataForDec.OutputFile = AES_Configuration.decOutDirectory;
 
                 dataForDec.AES_KeyBytes = userData.PlainSesKey;
 
@@ -189,9 +198,7 @@ namespace AESFileScrambler
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
             RSA RSA_Encryptor = new RSA();
-
-            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128, 
-                DateTime.Now.ToBinary());
+            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
             Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
             UserData tempUserData;
 
@@ -213,9 +220,9 @@ namespace AESFileScrambler
 
                 // zapis kluczy do plików
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PrivKey,
-                    RSA_Configuration.keyDirectory + "\\private\\" + u.Key + "_priv.key");
+                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_priv.key");
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PubKey,
-                    RSA_Configuration.keyDirectory + "\\public\\" + u.Key + "_pub.key");
+                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_pub.key");
 
             }
 
@@ -232,13 +239,30 @@ namespace AESFileScrambler
         }
 
         private void btnEndOutFile_Click(object sender, RoutedEventArgs e){
-
-            bool? temp = file.ShowDialog();
-            if (temp.HasValue ? temp.Value : false)
+            var dialog = new CommonOpenFileDialog
             {
-                AES_Configuration.encOutFile = file.FileName;
-                tbEncOutFile.Text = AES_Configuration.encOutFile;
+                EnsurePathExists = true,
+                EnsureFileExists = false,
+                AllowNonFileSystemItems = false,
+                DefaultFileName = "Select directory",
+                Title = "Select directory for encrpted file"
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
+                if (Directory.Exists(dialog.FileName)){
+                    AES_Configuration.encOutDirectory = dialog.FileName;
+                }
+                else {
+                    MessageBox.Show("You chose file instead directory! Try again.");
+                }
             }
+
+            //bool? temp = file.ShowDialog();
+            //if (temp.HasValue ? temp.Value : false)
+            //{
+            //    AES_Configuration.encOutDirectory = file.FileName;
+            //    tbEncOutFile.Text = AES_Configuration.encOutDirectory;
+            //}
         }
 
         private void btnDecInFile_Click(object sender, RoutedEventArgs e){
@@ -253,21 +277,17 @@ namespace AESFileScrambler
             }
         }
 
-        private void refreshCbUsers() {
-            dataForDec.InputFile = AES_Configuration.decInFile;
-            XmlTextReaderWriter reader = new XmlTextReaderWriter(dataForDec);
-            dataForDec = reader.ReadXml();
-            cbUsers.ItemsSource = dataForDec.UsersCollection.Keys;
-        }
-
         private void btnDecOutFile_Click(object sender, RoutedEventArgs e){
 
             bool? temp = file.ShowDialog();
             if (temp.HasValue ? temp.Value : false)
             {
-                AES_Configuration.decOutFile = file.FileName;
-                tbDecOutFile.Text = AES_Configuration.decOutFile;
+                AES_Configuration.decOutDirectory = file.FileName;
+                tbDecOutFile.Text = AES_Configuration.decOutDirectory;
             }
+
+
+
         }
 
 
