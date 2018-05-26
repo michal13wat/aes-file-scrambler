@@ -39,7 +39,7 @@ namespace NUnitTests
             data.KeySize = 128;
             data.BlockSize = 128;
             data.UsersCollection.Add("John", new UserData()
-            { Name = "John", Passwd = mySHA256.ComputeHash(Encoding.ASCII.GetBytes("asdf")) }); 
+            { Name = "John", Passwd = Encoding.ASCII.GetBytes("asdf") }); 
 
             AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
             //asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;

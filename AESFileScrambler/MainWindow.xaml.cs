@@ -85,7 +85,7 @@ namespace AESFileScrambler
 
                 dataForEnc.UsersCollection.Add(user, new UserData() {
                     Name = user,
-                    Passwd = mySHA256.ComputeHash(Encoding.ASCII.GetBytes(passwd))
+                    Passwd = Encoding.ASCII.GetBytes(passwd)
                 });
 
                 tablePreparedUsers.Rows.Add(user, replaceStringOnStars(passwd));
@@ -169,19 +169,18 @@ namespace AESFileScrambler
 
                 // tutaj zrobić odczytywanie z pliku klucza prywatnego
 
+                userData.Passwd = Encoding.ASCII.GetBytes("asdf");
+
                 try {
-                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\"
-                        + key + "_priv.key");
+                    userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\private\\"
+                        + key + "_priv.key", userData.PasswdHash);
                 }
                 catch {
                     MessageBox.Show("Error reading private key!");
                     return;
                 }
 
-
-                // tutaj zrobić deszyfrowanie klucza prywatnego
-
-                // tutaj zrobić deszyforwanie klucza sesyjnego
+                //  deszyforwanie klucza sesyjnego
                 userData = RSA_Decryptor.DecryptSessionKey(userData);
                 dataForDec.UsersCollection[key] = userData;
 
@@ -202,11 +201,6 @@ namespace AESFileScrambler
             Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
             UserData tempUserData;
 
-            //if (dataForDec) {
-            //    MessageBox.Show("Error before create recepients you have to add them to above list!");
-            //    return;
-            //}
-
             foreach (KeyValuePair<string, UserData> u in dataForEnc.UsersCollection)
             {
                 u.Value.PlainSesKey = secretPrimeNumber.ToByteArray();
@@ -215,14 +209,11 @@ namespace AESFileScrambler
                 tempDictionary.Add(u.Key, tempUserData);
             
 
-                // tutaj zrobić szyfrowanie klucza prywatnego
-
-
                 // zapis kluczy do plików
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PrivKey,
-                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_priv.key");
+                    RSA_Configuration.keyDirectory + "\\private\\" + u.Key + "_priv.key", tempUserData.PasswdHash);
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PubKey,
-                    RSA_Configuration.keyDirectory + "\\" + u.Key + "_pub.key");
+                    RSA_Configuration.keyDirectory + "\\public\\" + u.Key + "_pub.key");
 
             }
 

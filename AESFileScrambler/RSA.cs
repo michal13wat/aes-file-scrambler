@@ -50,7 +50,7 @@ namespace AESFileScrambler
             return userData;
         }
 
-        public void writeRSAParametersToFile(RSAParameters rsaParameters, string fileName) {
+        public void writeRSAParametersToFile(RSAParameters rsaParameters, string fileName, byte [] passwdHash = null) {
 
             string stringKey;
             {
@@ -64,31 +64,74 @@ namespace AESFileScrambler
                 stringKey = sw.ToString();
             }
 
-            using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-            using (StreamWriter sw = new StreamWriter(fs))
-            {
-                sw.WriteLine(stringKey);
+            if (passwdHash != null)
+            { // szyfrowanie AES(I)
+                try
+                {
+
+                    byte[] encrypted = AES_RSA_KeyEncrytpion.EncryptStringToBytes_Aes(stringKey,
+                            passwdHash, new byte[]{ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                                         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 });
+
+                    FileStream fsOut = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                    fsOut.Write(encrypted, 0, encrypted.Length);
+                    fsOut.Close();
+
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Error encrypted private key RSA.\n\n" + e.Message);
+                }
+            }
+            else {
+                using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                using (StreamWriter sw = new StreamWriter(fs))
+                {
+                    sw.WriteLine(stringKey);
+                }
             }
         }
 
-        public RSAParameters readRSAParametersFromFile(string fileName)
+        public RSAParameters readRSAParametersFromFile(string fileName, byte [] passwdHash = null)
         {
             RSAParameters readParameters = new RSAParameters();
-
             string stringKey = "";
-            try
-            {
-                using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-                using (StreamReader sw = new StreamReader(fs))
-                {
-                    stringKey = sw.ReadToEnd();
-                }
 
+            if (passwdHash != null) { // deszyfrowanie AES(I)
+                try
+                {
+
+                    FileStream fsIn = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                    byte[] encryptedBytes = new byte[fsIn.Length];
+                    fsIn.Read(encryptedBytes, 0, (int)fsIn.Length);
+
+                    // Decrypt the bytes to a string.
+                    stringKey = AES_RSA_KeyDecrytpion.DecryptStringFromBytes_Aes(encryptedBytes,
+                            passwdHash, new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                                         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 });
+
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Error decryption private key RSA.\n\n" + e.Message);
+                }
             }
-            catch
+            else
             {
-                MessageBox.Show("Can not open file with private key!");
-                return readParameters;
+                try
+                {
+                    using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                    using (StreamReader sw = new StreamReader(fs))
+                    {
+                        stringKey = sw.ReadToEnd();
+                    }
+
+                }
+                catch
+                {
+                    MessageBox.Show("Can not open file with private key!");
+                    return readParameters;
+                }
             }
 
             //get a stream from the string

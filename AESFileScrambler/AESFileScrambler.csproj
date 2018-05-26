@@ -107,6 +107,8 @@
     <Compile Include="AES_AsyncCommon.cs" />
     <Compile Include="AES_AsyncDecryptionFile.cs" />
     <Compile Include="AES_AsyncEncryptionFile.cs" />
+    <Compile Include="AES_RSA_KeyDecrytpion.cs" />
+    <Compile Include="AES_RSA_KeyEncrytpion.cs" />
     <Compile Include="CommonDataEncDec.cs" />
     <Compile Include="DataForDec.cs" />
     <Compile Include="DataForEnc.cs" />
