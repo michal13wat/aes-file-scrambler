@@ -12,6 +12,7 @@ namespace AESFileScrambler
         public static string BLOCK_SIZE = "BlockSize";
         public static string KEY_SIZE = "Keysize";
         public static string CIPHER_MODE = "CipherMode";
+        public static string FILE_EXTENSION = "FileExtension";
         public static string IV = "IV";
         public static string APPROVED_USERS = "ApprovedUsers";
         public static string USER = "User";

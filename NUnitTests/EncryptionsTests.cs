@@ -19,11 +19,11 @@ namespace NUnitTests
         [Test, Order(1)]
         public void testThatPrevFilesDoesNotExists()
         {
-            File.Delete(AES_Configuration.encOutDirectory);
-            File.Delete(AES_Configuration.decOutDirectory);
+            File.Delete(AES_Configuration.encOutFile);
+            File.Delete(AES_Configuration.decOutFile);
 
-            Assert.IsFalse(File.Exists(AES_Configuration.encOutDirectory));
-            Assert.IsFalse(File.Exists(AES_Configuration.decOutDirectory));
+            Assert.IsFalse(File.Exists(AES_Configuration.encOutFile));
+            Assert.IsFalse(File.Exists(AES_Configuration.decOutFile));
         }
 
         [Test, Order(2)]
@@ -33,7 +33,7 @@ namespace NUnitTests
 
             DataForEnc data = new DataForEnc();
             data.InputFile = AES_Configuration.encInFile;
-            data.OutputFile = AES_Configuration.encOutDirectory;
+            data.OutputFile = AES_Configuration.encOutFile;
             //data.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
             data.CipherMode = AES_Configuration.cipherMode;
             data.KeySize = 128;
@@ -47,7 +47,7 @@ namespace NUnitTests
 
             waitForEndBackgroundWorkder(asyncEnc);
 
-            Assert.IsTrue(File.Exists(AES_Configuration.encOutDirectory));
+            Assert.IsTrue(File.Exists(AES_Configuration.encOutFile));
         }
 
         [Test, Order(3)]
@@ -56,7 +56,7 @@ namespace NUnitTests
             CommonDataEncDec dataForDec = new DataForDec();
             dataForDec.CipherMode = AES_Configuration.cipherMode;
             dataForDec.InputFile = AES_Configuration.decInFile;
-            dataForDec.OutputFile = AES_Configuration.decOutDirectory;
+            dataForDec.OutputFile = AES_Configuration.decOutFile;
             //dataForDec.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
             dataForDec.KeySize = 128;
             dataForDec.BlockSize = 128;
@@ -67,26 +67,26 @@ namespace NUnitTests
 
             waitForEndBackgroundWorkder(asyncDec);
 
-            Assert.IsTrue(File.Exists(AES_Configuration.decOutDirectory));
+            Assert.IsTrue(File.Exists(AES_Configuration.decOutFile));
         }
         //byte by byte
 
 
         [Test, Order(4)]
         public void compareInAndOutFilesByBytes() {
-            Assert.IsTrue(CompareByBytes(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutDirectory)));
+            Assert.IsTrue(CompareByBytes(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
         }
 
         [Test, Order(5)]
         public void compareInAndOutFilesByMD5()
         {
-            Assert.IsTrue(CompareByHash_MD5(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutDirectory)));
+            Assert.IsTrue(CompareByHash_MD5(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
         }
 
         [Test, Order(6)]
         public void compareInAndOutFilesBySHA256()
         {
-            Assert.IsTrue(CompareByHash_SHA256(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutDirectory)));
+            Assert.IsTrue(CompareByHash_SHA256(new FileInfo(AES_Configuration.encInFile), new FileInfo(AES_Configuration.decOutFile)));
         }
 
 

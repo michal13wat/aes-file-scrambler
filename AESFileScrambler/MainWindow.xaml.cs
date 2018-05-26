@@ -34,9 +34,9 @@ namespace AESFileScrambler
             InitializeComponent();
 
             tbEncInFile.Text = AES_Configuration.encInFile;
-            tbEncOutFile.Text = AES_Configuration.encOutDirectory;
+            tbEncOutFile.Text = AES_Configuration.encOutFile;
             tbDecInFile.Text = AES_Configuration.decInFile;
-            tbDecOutFile.Text = AES_Configuration.decOutDirectory;
+            tbDecOutFile.Text = AES_Configuration.decOutFile;
 
             tablePreparedUsers.Columns.Add(_gridViewUser.Header.ToString());
             tablePreparedUsers.Columns.Add(_gridViewPasswd.Header.ToString());
@@ -136,7 +136,7 @@ namespace AESFileScrambler
         private void btnEncryptClik(object sender, RoutedEventArgs e){
 
             dataForEnc.InputFile = AES_Configuration.encInFile;
-            dataForEnc.OutputFile = AES_Configuration.encOutDirectory;
+            dataForEnc.OutputFile = AES_Configuration.encOutFile;
 
             try{
                 dataForEnc.AES_KeyBytes = dataForEnc.UsersCollection.First().Value.PlainSesKey;
@@ -185,8 +185,8 @@ namespace AESFileScrambler
                 userData = RSA_Decryptor.DecryptSessionKey(userData);
                 dataForDec.UsersCollection[key] = userData;
 
+                dataForDec.OutputFile = AES_Configuration.decOutFile + dataForDec.FileExtension;
                 dataForDec.InputFile = AES_Configuration.decInFile;
-                dataForDec.OutputFile = AES_Configuration.decOutDirectory;
 
                 dataForDec.AES_KeyBytes = userData.PlainSesKey;
 
@@ -198,7 +198,7 @@ namespace AESFileScrambler
 
         private void btnCreateRecepients_Click(object sender, RoutedEventArgs e){
             RSA RSA_Encryptor = new RSA();
-            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128, );
+            Org.BouncyCastle.Math.BigInteger secretPrimeNumber = PrimeNumberGenerator.genpr2(128, DateTime.Now.ToBinary());
             Dictionary<string, UserData> tempDictionary = new Dictionary<string, UserData>();
             UserData tempUserData;
 
@@ -238,31 +238,20 @@ namespace AESFileScrambler
             }
         }
 
-        private void btnEndOutFile_Click(object sender, RoutedEventArgs e){
+        private void btnEncOutFile_Click(object sender, RoutedEventArgs e){
             var dialog = new CommonOpenFileDialog
             {
                 EnsurePathExists = true,
                 EnsureFileExists = false,
                 AllowNonFileSystemItems = false,
-                DefaultFileName = "Select directory",
+                DefaultFileName = "encryptedFile",
                 Title = "Select directory for encrpted file"
             };
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok) {
-                if (Directory.Exists(dialog.FileName)){
-                    AES_Configuration.encOutDirectory = dialog.FileName;
-                }
-                else {
-                    MessageBox.Show("You chose file instead directory! Try again.");
-                }
+                AES_Configuration.encOutFile = dialog.FileName;
+                tbEncOutFile.Text = AES_Configuration.encOutFile;
             }
-
-            //bool? temp = file.ShowDialog();
-            //if (temp.HasValue ? temp.Value : false)
-            //{
-            //    AES_Configuration.encOutDirectory = file.FileName;
-            //    tbEncOutFile.Text = AES_Configuration.encOutDirectory;
-            //}
         }
 
         private void btnDecInFile_Click(object sender, RoutedEventArgs e){
@@ -279,15 +268,27 @@ namespace AESFileScrambler
 
         private void btnDecOutFile_Click(object sender, RoutedEventArgs e){
 
-            bool? temp = file.ShowDialog();
-            if (temp.HasValue ? temp.Value : false)
+            var dialog = new CommonOpenFileDialog
             {
-                AES_Configuration.decOutDirectory = file.FileName;
-                tbDecOutFile.Text = AES_Configuration.decOutDirectory;
+                EnsurePathExists = true,
+                EnsureFileExists = false,
+                AllowNonFileSystemItems = false,
+                DefaultFileName = "decryptedFile",
+                Title = "Select directory for decrypted file"
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                AES_Configuration.decOutFile = dialog.FileName;
+                tbDecOutFile.Text = AES_Configuration.decOutFile;
             }
 
-
-
+            //bool? temp = file.ShowDialog();
+            //if (temp.HasValue ? temp.Value : false)
+            //{
+            //    AES_Configuration.decOutFile = file.FileName;
+            //    tbDecOutFile.Text = AES_Configuration.decOutFile;
+            //}
         }
 
 

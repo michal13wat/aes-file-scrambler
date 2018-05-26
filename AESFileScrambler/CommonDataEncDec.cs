@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,11 +10,29 @@ namespace AESFileScrambler
 {
     public abstract class CommonDataEncDec
     {
-        public string InputFile { get; set; }
+        public string InputFile {
+            get {
+                return inputFile;
+            }
+            set {
+                inputFile = value;
+                fileExtension = Path.GetExtension(value);
+            }
+        }
         public string OutputFile { get; set; }
         public byte[] AES_KeyBytes { get; set; }
         public int KeySize { get; set; }
         public int BlockSize { get; set; }
+
+        public string FileExtension {
+            get {
+                return fileExtension;
+            }
+            set {
+                fileExtension = value;
+            }
+        }
+
         public CipherMode CipherMode {
             get { return cipherMode; }
             set {
@@ -64,5 +83,7 @@ namespace AESFileScrambler
 
         private CipherMode cipherMode;
         private string stringCipherMode;
+        private string fileExtension;
+        private string inputFile;
     }
 }

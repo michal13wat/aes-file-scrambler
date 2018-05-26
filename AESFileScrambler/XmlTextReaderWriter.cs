@@ -38,6 +38,10 @@ namespace AESFileScrambler
             writer.WriteAttributeString("xmlns", "x", null, data.StringCipherMode);
             writer.WriteEndElement();
 
+            writer.WriteStartElement(XmlConstants.FILE_EXTENSION);
+            writer.WriteAttributeString("xmlns", "x", null, data.FileExtension);
+            writer.WriteEndElement();
+
             writer.WriteStartElement(XmlConstants.APPROVED_USERS);
 
             foreach (KeyValuePair<string, UserData> up in data.UsersCollection) {
@@ -103,6 +107,10 @@ namespace AESFileScrambler
                 reader.ReadToFollowing(XmlConstants.CIPHER_MODE);
                 reader.MoveToFirstAttribute();
                 dataForDec.StringCipherMode = reader.Value;
+
+                reader.ReadToFollowing(XmlConstants.FILE_EXTENSION);
+                reader.MoveToFirstAttribute();
+                dataForDec.FileExtension = reader.Value;
 
                 string user = "...";
                 string sesionKey = "...";
