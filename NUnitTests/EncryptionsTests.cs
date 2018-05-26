@@ -29,12 +29,9 @@ namespace NUnitTests
         [Test, Order(2)]
         public void testEncryptionFile()
         {
-            //AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
-
             DataForEnc data = new DataForEnc();
             data.InputFile = AES_Configuration.encInFile;
             data.OutputFile = AES_Configuration.encOutFile;
-            //data.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  // mySHA256.ComputeHash(secretPrimeNumber);
             data.CipherMode = AES_Configuration.cipherMode;
             data.KeySize = 128;
             data.BlockSize = 128;
@@ -42,7 +39,6 @@ namespace NUnitTests
             { Name = "John", Passwd = Encoding.ASCII.GetBytes("asdf") }); 
 
             AES_AsyncEncryptionFile asyncEnc = new AES_AsyncEncryptionFile();
-            //asyncEnc.backgroundWorker.ProgressChanged += updateEncProgressBar;
             asyncEnc.backgroundWorker.RunWorkerAsync(data);
 
             waitForEndBackgroundWorkder(asyncEnc);
@@ -57,19 +53,16 @@ namespace NUnitTests
             dataForDec.CipherMode = AES_Configuration.cipherMode;
             dataForDec.InputFile = AES_Configuration.decInFile;
             dataForDec.OutputFile = AES_Configuration.decOutFile;
-            //dataForDec.AES_KeyBytes = AES_Configuration.secretPrimeNumber.ToByteArray();  //mySHA256.ComputeHash(passwdHash);
             dataForDec.KeySize = 128;
             dataForDec.BlockSize = 128;
 
             AES_AsyncDecryptionFile asyncDec = new AES_AsyncDecryptionFile();
-            //asyncDec.backgroundWorker.ProgressChanged += updateDecProgressBar;
             asyncDec.backgroundWorker.RunWorkerAsync(dataForDec);
 
             waitForEndBackgroundWorkder(asyncDec);
 
             Assert.IsTrue(File.Exists(AES_Configuration.decOutFile));
         }
-        //byte by byte
 
 
         [Test, Order(4)]

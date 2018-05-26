@@ -50,8 +50,6 @@ namespace AESFileScrambler
                 cbUsers.ItemsSource = dataForDec.UsersCollection.Keys;
             }
             catch { }
-
-            //AES_Configuration.secretPrimeNumber = PrimeNumberGenerator.genpr2(128);
         }
 
         public void updateEncProgressBar(object sender, ProgressChangedEventArgs e)
@@ -128,12 +126,6 @@ namespace AESFileScrambler
 
             if (latter && digit && special) return true;
 
-            //if (Regex.Match(password, @"/\d+/", RegexOptions.ECMAScript).Success
-            //    && (Regex.Match(password, @"/.[!,@,#,$,%,^,&,*,?,_,~,-,£,(,)]/", RegexOptions.ECMAScript).Success)
-            //    && ((Regex.Match(password, @"/[a-z]/", RegexOptions.ECMAScript).Success) 
-            //    || (Regex.Match(password, @"/[A-Z]/", RegexOptions.ECMAScript).Success)))
-            //    return true;
-
             return false;
         }
 
@@ -206,7 +198,7 @@ namespace AESFileScrambler
 
             if (dataForDec.UsersCollection.TryGetValue(key, out userData)){
 
-                // tutaj zrobić odczytywanie z pliku klucza prywatnego
+                // odczytywanie z pliku klucza prywatnego
 
                 string passwd = passwordBoxDecrtion.Password.ToString();
                 userData.Passwd = Encoding.ASCII.GetBytes(passwd);
@@ -220,7 +212,7 @@ namespace AESFileScrambler
                     return;
                 }
 
-                //  deszyforwanie klucza sesyjnego
+                // deszyforwanie klucza sesyjnego
                 userData = RSA_Decryptor.DecryptSessionKey(userData);
                 dataForDec.UsersCollection[key] = userData;
 
@@ -249,7 +241,7 @@ namespace AESFileScrambler
                 tempDictionary.Add(u.Key, tempUserData);
             
 
-                // zapis kluczy do plików
+                // zapis kluczy do plików i szyfrowanie klucz sesyjnego
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PrivKey,
                     RSA_Configuration.keyDirectory + "\\private\\" + u.Key + "_priv.key", tempUserData.PasswdHash);
                 RSA_Encryptor.writeRSAParametersToFile(tempUserData.PubKey,
@@ -313,13 +305,6 @@ namespace AESFileScrambler
                 AES_Configuration.decOutFile = dialog.FileName;
                 tbDecOutFile.Text = AES_Configuration.decOutFile;
             }
-
-            //bool? temp = file.ShowDialog();
-            //if (temp.HasValue ? temp.Value : false)
-            //{
-            //    AES_Configuration.decOutFile = file.FileName;
-            //    tbDecOutFile.Text = AES_Configuration.decOutFile;
-            //}
         }
 
 
