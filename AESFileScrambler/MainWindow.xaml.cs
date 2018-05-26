@@ -21,6 +21,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Text.RegularExpressions;
 
 namespace AESFileScrambler
 {
@@ -79,9 +80,18 @@ namespace AESFileScrambler
             string user = tbUserName.Text;
             string passwd = pbPassword.Password.ToString();
 
+            if (user == "") return;
+
             if(dataForEnc.UsersCollection.ContainsKey(user))
                 MessageBox.Show("User already exists. Try with another name!");
             else{
+
+                if (!verifyPasswordComplexity(passwd)) {
+                    MessageBox.Show("Password is too week.\n\nPassword must be minimum 8 characters length and \n" + 
+                        "contain at least: one letter, one digit\n and one special character.\n\n" + 
+                        "Try again with another password.");
+                    return;
+                }
 
                 dataForEnc.UsersCollection.Add(user, new UserData() {
                     Name = user,
@@ -96,6 +106,35 @@ namespace AESFileScrambler
 
             tbUserName.Clear();
             pbPassword.Clear();
+        }
+
+        private bool verifyPasswordComplexity(string password) {
+            if (password.Length < 8) return false;
+
+            bool latter = false;
+            bool digit = false;
+            bool special = false;
+
+            string specialChar = @"\|!@#$%^&*/()=?»«£§€{}.-;~`'<>_,[]{}";
+
+            for (int i = 0; i < password.Length; i++) {
+                if (!latter && (Regex.IsMatch(password[i].ToString(), @"^[a-zA-Z]+$")))
+                    latter = true;
+                if (!digit && (Regex.IsMatch(password[i].ToString(), @".*([\d]+).*")))
+                    digit = true;
+                if (!special && (specialChar.Contains(password[i].ToString())))
+                    special = true;
+            }
+
+            if (latter && digit && special) return true;
+
+            //if (Regex.Match(password, @"/\d+/", RegexOptions.ECMAScript).Success
+            //    && (Regex.Match(password, @"/.[!,@,#,$,%,^,&,*,?,_,~,-,£,(,)]/", RegexOptions.ECMAScript).Success)
+            //    && ((Regex.Match(password, @"/[a-z]/", RegexOptions.ECMAScript).Success) 
+            //    || (Regex.Match(password, @"/[A-Z]/", RegexOptions.ECMAScript).Success)))
+            //    return true;
+
+            return false;
         }
 
         private string replaceStringOnStars(string passwd) {
@@ -169,7 +208,8 @@ namespace AESFileScrambler
 
                 // tutaj zrobić odczytywanie z pliku klucza prywatnego
 
-                userData.Passwd = Encoding.ASCII.GetBytes("asdf");
+                string passwd = passwordBoxDecrtion.Password.ToString();
+                userData.Passwd = Encoding.ASCII.GetBytes(passwd);
 
                 try {
                     userData.PrivKey = RSA_Decryptor.readRSAParametersFromFile(RSA_Configuration.keyDirectory + "\\private\\"
