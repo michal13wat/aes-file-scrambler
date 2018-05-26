@@ -208,7 +208,7 @@ namespace AESFileScrambler
                         + key + "_priv.key", userData.PasswdHash);
                 }
                 catch {
-                    MessageBox.Show("Error reading private key!");
+                    //MessageBox.Show("Error reading private key!");
                     return;
                 }
 

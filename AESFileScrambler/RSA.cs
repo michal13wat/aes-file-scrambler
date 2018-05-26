@@ -113,7 +113,7 @@ namespace AESFileScrambler
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Error decryption private key RSA.\n\n" + e.Message);
+                    //MessageBox.Show("Error decryption private key RSA.\n\n" + e.Message);
                 }
             }
             else
